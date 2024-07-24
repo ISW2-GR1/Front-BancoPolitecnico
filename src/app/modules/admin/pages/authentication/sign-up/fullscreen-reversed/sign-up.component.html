@@ -102,7 +102,7 @@
                         matInput
                         [formControlName]="'email'">
                     <mat-error *ngIf="signUpForm.get('email').hasError('required')">
-                        Email address is required
+                       Dirección de correo electrónico obligatoria
                     </mat-error>
                     <mat-error *ngIf="signUpForm.get('email').hasError('email')">
                         Please enter a valid email address
@@ -133,7 +133,7 @@
                             [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
                     </button>
                     <mat-error>
-                        Password is required
+                       La contraseña es requerida
                     </mat-error>
                 </mat-form-field>
 
