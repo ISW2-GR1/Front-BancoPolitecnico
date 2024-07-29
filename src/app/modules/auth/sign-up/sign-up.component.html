@@ -32,17 +32,33 @@
                         First name is required
                     </mat-error>
                 </mat-form-field>
-
+            
                 <mat-form-field class="w-full">
                     <mat-label>Username</mat-label>
-                    <input id="name" matInput [formControlName]="'name'">
-                    <mat-error *ngIf="signUpForm.get('name').hasError('required')">
+                    <input id="username" matInput [formControlName]="'username'">
+                    <mat-error *ngIf="signUpForm.get('username').hasError('required')">
                         Username is required
                     </mat-error>
                 </mat-form-field>
-
-
-
+            
+                <!-- Last Name field -->
+                <mat-form-field class="w-full">
+                    <mat-label>Last Name</mat-label>
+                    <input id="last_name" matInput [formControlName]="'last_name'" #last_nameField>
+                    <mat-error *ngIf="signUpForm.get('last_name').hasError('required')">
+                        Last name is required
+                    </mat-error>
+                </mat-form-field>
+            
+                <!-- Cedula field -->
+                <mat-form-field class="w-full">
+                    <mat-label>Cédula</mat-label>
+                    <input id="cedula" matInput [formControlName]="'cedula'" #cedulaField>
+                    <mat-error *ngIf="signUpForm.get('cedula').hasError('required')">
+                        Cedula is required
+                    </mat-error>
+                </mat-form-field>
+            
                 <!-- Email field -->
                 <mat-form-field class="w-full">
                     <mat-label>Email address</mat-label>
@@ -54,7 +70,7 @@
                         Please enter a valid email address
                     </mat-error>
                 </mat-form-field>
-
+            
                 <!-- Password field -->
                 <mat-form-field class="w-full">
                     <mat-label>Password</mat-label>
@@ -71,7 +87,7 @@
                        La contraseña es requerida
                     </mat-error>
                 </mat-form-field>
-
+            
                 <!-- ToS and PP -->
                 <div class="inline-flex items-end w-full mt-1.5">
                     <mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'agreements'">
@@ -83,7 +99,7 @@
                         </a>
                     </mat-checkbox>
                 </div>
-
+            
                 <!-- Submit button -->
                 <button class="fuse-mat-button-large w-full mt-6" mat-flat-button [color]="'primary'"
                     [disabled]="signUpForm.disabled" (click)="signUp()">
@@ -93,8 +109,9 @@
                     <mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24"
                         [mode]="'indeterminate'"></mat-progress-spinner>
                 </button>
-
+            
             </form>
+            
         </div>
     </div>
     <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden"
