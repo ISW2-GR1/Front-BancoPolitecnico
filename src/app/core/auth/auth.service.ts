@@ -32,11 +32,11 @@ export class AuthService {
      * Setter & getter for refresh token
      */
     set refreshToken(token: string) {
-        localStorage.setItem('refreshToken', token);
+        localStorage.setItem('accessToken', token);
     }
 
     get refreshToken(): string {
-        return localStorage.getItem('refreshToken') ?? '';
+        return localStorage.getItem('accessToken') ?? '';
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -130,7 +130,7 @@ export class AuthService {
      */
     signUp(user: { name: string; email: string; password: string; username: string, last_name: string, cedula: string}): Observable<any> {
         return this._httpClient.post(`${this.baseUrl}register/`, user);
-    }
+      }
 
     /**
      * Unlock session
@@ -161,4 +161,8 @@ export class AuthService {
         }
 
     }
+    confirmEmail(token: string): Observable<any> {
+        return this._httpClient.post(`${this.baseUrl}email-confirm/`, { token });
+      }
+
 }

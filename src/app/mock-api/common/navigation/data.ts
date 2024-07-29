@@ -4,8 +4,8 @@ import { FuseNavigationItem } from '@fuse/components/navigation';
 export const defaultNavigation: FuseNavigationItem[] = [
     {
         id      : 'dashboards',
-        title   : 'Dashboards',
-        subtitle: 'Unique dashboard designs',
+        title   : 'Opciones',
+        subtitle: 'Opciones del usuario bancario',
         type    : 'group',
         icon    : 'heroicons_outline:home',
         children: [

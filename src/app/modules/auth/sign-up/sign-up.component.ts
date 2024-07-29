@@ -31,6 +31,8 @@ export class AuthSignUpComponent implements OnInit
     signUpForm: UntypedFormGroup;
     showAlert: boolean = false;
 
+    backendErrors: any = {};
+
     /**
      * Constructor
      */
@@ -42,75 +44,43 @@ export class AuthSignUpComponent implements OnInit
     {
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Lifecycle hooks
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * On init
-     */
     ngOnInit(): void
     {
-        // Create the form
         this.signUpForm = this._formBuilder.group({
-                name      : ['', Validators.required],
-                email     : ['', [Validators.required, Validators.email]],
-                password  : ['', Validators.required],
-                username    : ['', Validators.required],
+                name: ['', Validators.required],
                 last_name: ['', Validators.required],
-                cedula: ['', Validators.required],
-                agreements: ['', Validators.requiredTrue],
+                email: ['', [Validators.required, Validators.email]],
+                password: ['', [Validators.required, Validators.minLength(6)]],
+                username: ['', Validators.required],
+                cedula: ['', Validators.required]
             },
         );
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Sign up
-     */
-    signUp(): void
-    {
-        // Do nothing if the form is invalid
-        if ( this.signUpForm.invalid )
-        {
+    signUp(): void {
+        if (this.signUpForm.invalid) {
             return;
         }
-
-        // Disable the form
         this.signUpForm.disable();
-
-        // Hide the alert
         this.showAlert = false;
-
-        // Sign up
         this._authService.signUp(this.signUpForm.value)
             .subscribe(
-                (response) =>
-                {
-                    // Navigate to the confirmation required page
+                (response) => {
                     this._router.navigateByUrl('/confirmation-required');
                 },
-                (response) =>
-                {
-
-                    console.log('Sign up successful:', response);
-                    // Re-enable the form
+                (response) => {
                     this.signUpForm.enable();
-
-                    // Reset the form
-                    this.signUpNgForm.resetForm();
-
-                    // Set the alert
-                    this.alert = {
-                        type   : 'error',
-                        message: 'Something went wrong, please try again.',
-                    };
-
-                    // Show the alert
-                    this.showAlert = true;
+                    if (response.status === 400) {
+                        this.backendErrors = response.error;
+                        console.log("Errores"+this.backendErrors.cedula[0] )
+                        console.log('Backend errors:', this.backendErrors);
+                    } else {
+                        this.alert = {
+                            type: 'error',
+                            message: 'Something went wrong, please try again.',
+                        };
+                        this.showAlert = true;
+                    }
                 },
             );
     }
