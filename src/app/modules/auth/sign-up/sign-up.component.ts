@@ -96,7 +96,7 @@ export class AuthSignUpComponent implements OnInit
                 (response) =>
                 {
 
-                    console.log('Sign up successful:', response);
+                    console.log('Registro exitoso:', response);
                     // Re-enable the form
                     this.signUpForm.enable();
 
@@ -106,7 +106,7 @@ export class AuthSignUpComponent implements OnInit
                     // Set the alert
                     this.alert = {
                         type   : 'error',
-                        message: 'Something went wrong, please try again.',
+                        message: 'Algo fue mal, por favor intente de nuevo.',
                     };
 
                     // Show the alert

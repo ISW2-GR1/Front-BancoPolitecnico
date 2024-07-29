@@ -127,7 +127,7 @@ export class AuthUnlockSessionComponent implements OnInit
                 // Set the alert
                 this.alert = {
                     type   : 'error',
-                    message: 'Invalid password',
+                    message: 'Contraseña no Válida',
                 };
 
                 // Show the alert
