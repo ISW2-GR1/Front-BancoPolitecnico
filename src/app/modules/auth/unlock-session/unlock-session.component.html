@@ -8,7 +8,7 @@
 
             <!-- Title -->
             <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Unlock your session</div>
-            <div class="mt-0.5 font-medium">Your session is locked due to inactivity</div>
+            <div class="mt-0.5 font-medium">Tu sesión está bloqueada por inactividad</div>
 
             <!-- Alert -->
             <fuse-alert
@@ -29,7 +29,7 @@
 
                 <!-- Name field -->
                 <mat-form-field class="w-full">
-                    <mat-label>Full name</mat-label>
+                    <mat-label>Nombre completo</mat-label>
                     <input
                         id="name"
                         matInput
@@ -38,7 +38,7 @@
 
                 <!-- Password field -->
                 <mat-form-field class="w-full">
-                    <mat-label>Password</mat-label>
+                    <mat-label>Contraseña</mat-label>
                     <input
                         id="password"
                         matInput
@@ -72,7 +72,7 @@
                     [disabled]="unlockSessionForm.disabled"
                     (click)="unlock()">
                     <span *ngIf="!unlockSessionForm.disabled">
-                        Unlock your session
+                        Desbloquea tu cuenta(sesion)
                     </span>
                     <mat-progress-spinner
                         *ngIf="unlockSessionForm.disabled"
@@ -115,8 +115,8 @@
         <!-- Content -->
         <div class="z-10 relative w-full max-w-2xl">
             <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Welcome to</div>
-                <div>our community</div>
+                <div>Bienvenido a</div>
+                <div>nuestra comunidad</div>
             </div>
             <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
                 Fuse helps developers to build organized and well coded dashboards full of beautiful and rich modules.
