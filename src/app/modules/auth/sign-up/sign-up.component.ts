@@ -56,7 +56,9 @@ export class AuthSignUpComponent implements OnInit
                 name      : ['', Validators.required],
                 email     : ['', [Validators.required, Validators.email]],
                 password  : ['', Validators.required],
-                company   : [''],
+                username    : ['', Validators.required],
+                last_name: ['', Validators.required],
+                cedula: ['', Validators.required],
                 agreements: ['', Validators.requiredTrue],
             },
         );
@@ -93,6 +95,8 @@ export class AuthSignUpComponent implements OnInit
                 },
                 (response) =>
                 {
+
+                    console.log('Sign up successful:', response);
                     // Re-enable the form
                     this.signUpForm.enable();
 
