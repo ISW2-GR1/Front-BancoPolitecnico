@@ -13,19 +13,18 @@ import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
 import { AuthService } from 'app/core/auth/auth.service';
 
 @Component({
-    selector     : 'auth-sign-up',
-    templateUrl  : './sign-up.component.html',
+    selector: 'auth-sign-up',
+    templateUrl: './sign-up.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations,
-    standalone   : true,
-    imports      : [RouterLink, NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [RouterLink, NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatIconModule, MatCheckboxModule, MatProgressSpinnerModule],
 })
-export class AuthSignUpComponent implements OnInit
-{
+export class AuthSignUpComponent implements OnInit {
     @ViewChild('signUpNgForm') signUpNgForm: NgForm;
 
     alert: { type: FuseAlertType; message: string } = {
-        type   : 'success',
+        type: 'success',
         message: '',
     };
     signUpForm: UntypedFormGroup;
@@ -38,8 +37,7 @@ export class AuthSignUpComponent implements OnInit
         private _authService: AuthService,
         private _formBuilder: UntypedFormBuilder,
         private _router: Router,
-    )
-    {
+    ) {
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -49,18 +47,17 @@ export class AuthSignUpComponent implements OnInit
     /**
      * On init
      */
-    ngOnInit(): void
-    {
+    ngOnInit(): void {
         // Create the form
         this.signUpForm = this._formBuilder.group({
-                name      : ['', Validators.required],
-                email     : ['', [Validators.required, Validators.email]],
-                password  : ['', Validators.required],
-                username    : ['', Validators.required],
-                last_name: ['', Validators.required],
-                cedula: ['', Validators.required],
-                agreements: ['', Validators.requiredTrue],
-            },
+            name: ['', Validators.required],
+            email: ['', [Validators.required, Validators.email]],
+            password: ['', Validators.required],
+            username: ['', Validators.required],
+            last_name: ['', Validators.required],
+            cedula: ['', Validators.required],
+            agreements: ['', Validators.requiredTrue],
+        },
         );
     }
 
@@ -71,47 +68,62 @@ export class AuthSignUpComponent implements OnInit
     /**
      * Sign up
      */
-    signUp(): void
-    {
+    signUp(): void {
         // Do nothing if the form is invalid
-        if ( this.signUpForm.invalid )
-        {
+        if (this.signUpForm.invalid) {
             return;
         }
-
+    
         // Disable the form
         this.signUpForm.disable();
-
+    
         // Hide the alert
         this.showAlert = false;
-
+    
         // Sign up
         this._authService.signUp(this.signUpForm.value)
             .subscribe(
-                (response) =>
-                {
+                (response) => {
                     // Navigate to the confirmation required page
                     this._router.navigateByUrl('/confirmation-required');
                 },
-                (response) =>
-                {
-
-                    console.log('Registro exitoso:', response);
-                    // Re-enable the form
+                (error) => {
+                    console.error('Sign-up error details:', error.error); // Log the error details
+    
                     this.signUpForm.enable();
-
-                    // Reset the form
-                    this.signUpNgForm.resetForm();
-
-                    // Set the alert
+                   
+    
+                    let errorMessage = 'An error occurred during sign up.';
+    
+                    // Extract and format error messages
+                    if (error.error) {
+                        const errorMessages: string[] = [];
+    
+                        // Extract error messages from specific fields (like 'email')
+                        for (const key in error.error) {
+                            if (error.error.hasOwnProperty(key)) {
+                                errorMessages.push(...error.error[key]);
+                            }
+                        }
+    
+                        // Combine all error messages into a single string
+                        if (errorMessages.length > 0) {
+                            errorMessage = errorMessages.join(' ');
+                        }
+                    } else if (error.message) {
+                        // Handle error message if 'error' property does not exist
+                        errorMessage = error.message;
+                    }
+    
+                    // Set the alert with the extracted error message
                     this.alert = {
                         type   : 'error',
-                        message: 'Algo fue mal, por favor intente de nuevo.',
+                        message: errorMessage,
                     };
-
-                    // Show the alert
                     this.showAlert = true;
-                },
+                }
             );
     }
+    
+
 }
