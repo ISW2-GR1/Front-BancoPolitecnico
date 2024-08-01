@@ -1,16 +1,6 @@
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
-import { ENVIRONMENT_INITIALIZER, EnvironmentProviders, inject, Provider } from '@angular/core';
-import { authInterceptor } from 'app/core/auth/auth.interceptor';
-import { AuthService } from 'app/core/auth/auth.service';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './auth.interceptor';
 
-export const provideAuth = (): Array<Provider | EnvironmentProviders> =>
-{
-    return [
-        provideHttpClient(withInterceptors([authInterceptor])),
-        {
-            provide : ENVIRONMENT_INITIALIZER,
-            useValue: () => inject(AuthService),
-            multi   : true,
-        },
-    ];
-};
+export const authProvider = [
+    { provide: HTTP_INTERCEPTORS, useClass: AuthInterceptor, multi: true }
+];

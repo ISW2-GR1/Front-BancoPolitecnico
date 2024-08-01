@@ -30,6 +30,8 @@ export class AuthSignUpComponent implements OnInit {
     signUpForm: UntypedFormGroup;
     showAlert: boolean = false;
 
+    backendErrors: any = {};
+
     /**
      * Constructor
      */
@@ -39,6 +41,7 @@ export class AuthSignUpComponent implements OnInit {
         private _router: Router,
     ) {
     }
+
 
     // -----------------------------------------------------------------------------------------------------
     // @ Lifecycle hooks
@@ -122,8 +125,45 @@ export class AuthSignUpComponent implements OnInit {
                     };
                     this.showAlert = true;
                 }
+
+    ngOnInit(): void
+    {
+        this.signUpForm = this._formBuilder.group({
+                name: ['', Validators.required],
+                last_name: ['', Validators.required],
+                email: ['', [Validators.required, Validators.email]],
+                password: ['', [Validators.required, Validators.minLength(6)]],
+                username: ['', Validators.required],
+                cedula: ['', Validators.required]
+            },
+        );
+    }
+
+    signUp(): void {
+        if (this.signUpForm.invalid) {
+            return;
+        }
+        this.signUpForm.disable();
+        this.showAlert = false;
+        this._authService.signUp(this.signUpForm.value)
+            .subscribe(
+                (response) => {
+                    this._router.navigateByUrl('/confirmation-required');
+                },
+                (response) => {
+                    this.signUpForm.enable();
+                    if (response.status === 400) {
+                        this.backendErrors = response.error;
+                        console.log("Errores"+this.backendErrors.cedula[0] )
+                        console.log('Backend errors:', this.backendErrors);
+                    } else {
+                        this.alert = {
+                            type: 'error',
+                            message: 'Something went wrong, please try again.',
+                        };
+                        this.showAlert = true;
+                    }
+                },
             );
     }
-    
-
 }
