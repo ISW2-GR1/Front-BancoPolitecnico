@@ -32,19 +32,19 @@
 
                 <!-- Email field -->
                 <mat-form-field class="w-full">
-                    <mat-label>Email</mat-label>
+                    <mat-label>Correo Electrónico</mat-label>
                     <input id="email" matInput [formControlName]="'email'">
                     <mat-error *ngIf="signInForm.get('email').hasError('required')">
                        Dirección de correo electrónico obligatoria
                     </mat-error>
                     <mat-error *ngIf="signInForm.get('email').hasError('email')">
-                        Please enter a valid email address
+                        Por favor ingrese un correo electronico válido
                     </mat-error>
                 </mat-form-field>
 
                 <!-- Password field -->
                 <mat-form-field class="w-full">
-                    <mat-label>Password</mat-label>
+                    <mat-label>Contraseña</mat-label>
                     <input id="password" matInput type="password" [formControlName]="'password'" #passwordField>
                     <button mat-icon-button type="button"
                         (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
@@ -55,17 +55,17 @@
                             [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
                     </button>
                     <mat-error>
-                       La contraseña es requerida
+                       El campo contraseña es obligatorio
                     </mat-error>
                 </mat-form-field>
 
                 <!-- Actions -->
                 <div class="inline-flex items-center justify-between w-full mt-1.5">
                     <mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'rememberMe'">
-                        Remember me
+                        Guardar Usuario
                     </mat-checkbox>
                     <a class="text-md font-medium text-primary-500 hover:underline"
-                        [routerLink]="['/forgot-password']">Forgot password?
+                        [routerLink]="['/forgot-password']">Olvido su contraseña?
                     </a>
                 </div>
 
@@ -73,7 +73,7 @@
                 <button class="fuse-mat-button-large w-full mt-6" mat-flat-button [color]="'primary'"
                     [disabled]="signInForm.disabled" (click)="signIn()">
                     <span *ngIf="!signInForm.disabled">
-                        Sign in
+                        Iniciar Sesion
                     </span>
                     <mat-progress-spinner *ngIf="signInForm.disabled" [diameter]="24"
                         [mode]="'indeterminate'"></mat-progress-spinner>
