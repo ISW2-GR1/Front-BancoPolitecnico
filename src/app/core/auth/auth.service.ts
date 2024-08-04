@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, throwError } from 'rxjs';
+import { inject, Injectable, Injector } from '@angular/core';
+import { catchError, map, Observable, of, switchMap, throwError, interval } from 'rxjs';
 import { environment } from 'environments/environment';
 import { UserService } from 'app/core/user/user.service';
 
@@ -8,16 +8,23 @@ import { UserService } from 'app/core/user/user.service';
 export class AuthService {
     private _authenticated: boolean = false;
     private _httpClient = inject(HttpClient);
-    private _userService = inject(UserService);
+    private _injector = inject(Injector);
 
     private baseUrl = environment.apiUrl;
-    // -----------------------------------------------------------------------------------------------------
-    // @ Accessors
-    // -----------------------------------------------------------------------------------------------------
 
-    /**
-     * Setter & getter for access token
-     */
+    constructor() {
+        // Verificar el token en intervalos regulares (ej. cada 1 minuto para pruebas)
+        interval(60000).subscribe(() => {
+            this.checkTokenValidity().subscribe();
+        });
+    }
+
+    private get _userService(): UserService {
+        return this._injector.get(UserService);
+    }
+
+    // Accessors for tokens
+
     set accessToken(token: string) {
         localStorage.setItem('accessToken', token);
     }
@@ -26,9 +33,6 @@ export class AuthService {
         return localStorage.getItem('accessToken') ?? '';
     }
 
-    /**
-     * Setter & getter for refresh token
-     */
     set refreshToken(token: string) {
         localStorage.setItem('refreshToken', token);
     }
@@ -37,76 +41,39 @@ export class AuthService {
         return localStorage.getItem('refreshToken') ?? '';
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
+    // Public methods
 
-    /**
-     * Forgot password
-     *
-     * @param email
-     */
     forgotPassword(email: string): Observable<any> {
-        return this._httpClient.post(`${this.baseUrl}forgot-password`, {
-            email,
-        });
+        return this._httpClient.post(`${this.baseUrl}forgot-password`, { email });
     }
 
-    /**
-     * Reset password
-     *
-     * @param password
-     */
     resetPassword(password: string): Observable<any> {
-        return this._httpClient.post(`${this.baseUrl}reset-password`, {
-            password,
-        });
+        return this._httpClient.post(`${this.baseUrl}reset-password`, { password });
     }
 
-    /**
-     * Sign in
-     *
-     * @param credentials
-     */
     signIn(credentials: { email: string; password: string }): Observable<any> {
-        // Throw error if the user is already logged in
         if (this._authenticated) {
             return throwError('User is already logged in.');
         }
 
-        return this._httpClient
-            .post<any>(`${this.baseUrl}login/`, credentials)
-            .pipe(
-                switchMap((response: any) => {
-                    console.log('Response from server:', response);
-
-                    if (response && response.access && response.refresh) {
-                        this.accessToken = response.access;
-                        localStorage.setItem('refreshToken', response.refresh);
-                        this._authenticated = true;
-                        this._userService.user = response.user;
-                        return of(response);
-                    } else {
-                        return throwError(
-                            'Invalid response format: ' +
-                                JSON.stringify(response)
-                        );
-                    }
-                }),
-                catchError((error) => {
-                    console.error('Error during login:', error);
-                    return throwError(error);
-                })
-            );
+        return this._httpClient.post<any>(`${this.baseUrl}login/`, credentials).pipe(
+            switchMap((response: any) => {
+                if (response && response.access && response.refresh) {
+                    this.accessToken = response.access;
+                    this.refreshToken = response.refresh;
+                    this._authenticated = true;
+                    this._userService.user = response.user;
+                    return of(response);
+                } else {
+                    return throwError('Invalid response format: ' + JSON.stringify(response));
+                }
+            }),
+            catchError((error) => {
+                return throwError(error);
+            })
+        );
     }
 
-    /**
-     * Sign in using the access token
-     */
-
-    /**
-     * Sign out
-     */
     signOut(): Observable<any> {
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
@@ -114,11 +81,6 @@ export class AuthService {
         return of(true);
     }
 
-    /**
-     * Sign up
-     *
-     * @param user
-     */
     signUp(user: {
         name: string;
         email: string;
@@ -130,51 +92,9 @@ export class AuthService {
         return this._httpClient.post(`${this.baseUrl}register/`, user);
     }
 
-    /**
-     * Unlock session
-     *
-     * @param credentials
-     */
-    unlockSession(credentials: {
-        email: string;
-        password: string;
-    }): Observable<any> {
-        return this._httpClient.post(
-            `${this.baseUrl}unlock-session`,
-            credentials
-        );
+    unlockSession(credentials: { email: string; password: string }): Observable<any> {
+        return this._httpClient.post(`${this.baseUrl}unlock-session`, credentials);
     }
-
-    /**
-     * Check the authentication status
-     */
-
-    // check(): Observable<boolean> {
-    //     if (this._authenticated) {
-    //         return of(true);
-    //     }
-
-    //     const token = this.accessToken;
-    //     if (!token) {
-    //         return of(false);
-    //     }
-    //     return this._httpClient.post<{ valid: boolean }>(`${this.baseUrl}verify-token`, { token }).pipe(
-    //         map(response => {
-    //             if (response.valid) {
-    //                 this._authenticated = true;
-    //                 return true;
-    //             } else {
-    //                 this._authenticated = false;
-    //                 return false;
-    //             }
-    //         }),
-    //         catchError(error => {
-    //             console.error('Error during token verification:', error);
-    //             this._authenticated = false;
-    //             return of(false);
-    //         })
-    //     );
-    // }
 
     check(): Observable<boolean> {
         if (this._authenticated) {
@@ -187,8 +107,32 @@ export class AuthService {
     }
 
     confirmEmail(token: string): Observable<any> {
-        return this._httpClient.post(`${this.baseUrl}email-confirm/`, {
-            token,
-        });
+        return this._httpClient.post(`${this.baseUrl}email-confirm/`, { token });
+    }
+
+    // Private methods
+
+    private checkTokenValidity(): Observable<boolean> {
+        const refreshToken = this.refreshToken;
+        if (!refreshToken) {
+            this.signOut();
+            return of(false);
+        }
+
+        return this._httpClient.post<any>(`${this.baseUrl}token/refresh/`, { refresh: refreshToken }).pipe(
+            switchMap(response => {
+                if (response && response.access) {
+                    this.accessToken = response.access;
+                    return of(true);
+                } else {
+                    this.signOut();
+                    return of(false);
+                }
+            }),
+            catchError((error) => {
+                this.signOut();
+                return of(false);
+            })
+        );
     }
 }

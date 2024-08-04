@@ -7,7 +7,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { UserService } from 'app/core/user/user.service';
-import { User } from 'app/core/user/user.types';
 import { Subject, takeUntil } from 'rxjs';
 
 @Component({
@@ -26,7 +25,6 @@ export class UserComponent implements OnInit, OnDestroy
     /* eslint-enable @typescript-eslint/naming-convention */
 
     @Input() showAvatar: boolean = true;
-    user: User;
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
 
@@ -50,16 +48,7 @@ export class UserComponent implements OnInit, OnDestroy
      */
     ngOnInit(): void
     {
-        // Subscribe to user changes
-        this._userService.user$
-            .pipe(takeUntil(this._unsubscribeAll))
-            .subscribe((user: User) =>
-            {
-                this.user = user;
 
-                // Mark for check
-                this._changeDetectorRef.markForCheck();
-            });
     }
 
     /**
@@ -83,17 +72,7 @@ export class UserComponent implements OnInit, OnDestroy
      */
     updateUserStatus(status: string): void
     {
-        // Return if user is not available
-        if ( !this.user )
-        {
-            return;
-        }
-
-        // Update the user
-        this._userService.update({
-            ...this.user,
-            status,
-        }).subscribe();
+        
     }
 
     /**
