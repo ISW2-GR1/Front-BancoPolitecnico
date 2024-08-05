@@ -55,9 +55,6 @@ export const appRoutes: Route[] = [
         data: {
             layout: 'empty'
         },
-        children: [
-            {path: 'home', loadChildren: () => import('app/modules/landing/home/home.routes')},
-        ]
     },
 
     // Admin routes
@@ -75,23 +72,9 @@ export const appRoutes: Route[] = [
             {path: 'dashboards', children: [
                 {path: 'project', loadChildren: () => import('app/modules/admin/dashboards/project/project.routes')},
                 {path: 'analytics', loadChildren: () => import('app/modules/admin/dashboards/analytics/analytics.routes')},
-                {path: 'finance', loadChildren: () => import('app/modules/admin/dashboards/finance/finance.routes')},
                 {path: 'crypto', loadChildren: () => import('app/modules/admin/dashboards/crypto/crypto.routes')},
             ]},
 
-            // Apps
-            {path: 'apps', children: [
-                {path: 'academy', loadChildren: () => import('app/modules/admin/apps/academy/academy.routes')},
-                {path: 'chat', loadChildren: () => import('app/modules/admin/apps/chat/chat.routes')},
-                {path: 'contacts', loadChildren: () => import('app/modules/admin/apps/contacts/contacts.routes')},
-                {path: 'ecommerce', loadChildren: () => import('app/modules/admin/apps/ecommerce/ecommerce.routes')},
-                {path: 'file-manager', loadChildren: () => import('app/modules/admin/apps/file-manager/file-manager.routes')},
-                {path: 'help-center', loadChildren: () => import('app/modules/admin/apps/help-center/help-center.routes')},
-                {path: 'mailbox', loadChildren: () => import('app/modules/admin/apps/mailbox/mailbox.routes')},
-                {path: 'notes', loadChildren: () => import('app/modules/admin/apps/notes/notes.routes')},
-                {path: 'scrumboard', loadChildren: () => import('app/modules/admin/apps/scrumboard/scrumboard.routes')},
-                {path: 'tasks', loadChildren: () => import('app/modules/admin/apps/tasks/tasks.routes')},
-            ]},
 
             // Pages
             {path: 'pages', children: [
@@ -181,16 +164,6 @@ export const appRoutes: Route[] = [
 
                 // Typography
                 {path: 'typography', loadChildren: () => import('app/modules/admin/ui/typography/typography.routes')}
-            ]},
-
-            // Documentation
-            {path: 'docs', children: [
-
-                // Changelog
-                {path: 'changelog', loadChildren: () => import('app/modules/admin/docs/changelog/changelog.routes')},
-
-                // Guides
-                {path: 'guides', loadChildren: () => import('app/modules/admin/docs/guides/guides.routes')}
             ]},
 
             // 404 & Catch all
