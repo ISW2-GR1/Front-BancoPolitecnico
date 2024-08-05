@@ -13,4 +13,9 @@ export interface User {
   avatar: string;
   balance?: number;
   transactions?: number;
+  contacts?: any[];
+  sent_transfers?: { amount: string }[];
+  received_transfers?: { amount: string }[];
+  available_balance?: number;
+  account_numbers?: string[];
 }

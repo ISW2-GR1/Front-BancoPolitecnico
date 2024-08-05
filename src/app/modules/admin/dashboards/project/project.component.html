@@ -11,7 +11,7 @@
                     </div>
                     <div class="flex flex-col items-center mt-4 sm:mt-0 sm:ml-6">
                         <div class="flex-0 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
-                            <img class="w-full h-full object-cover" [src]="defaultAvatar" alt="Avatar">
+                            <img class="w-full h-full object-cover" [src]="user.avatar || defaultAvatar" alt="Avatar">
                         </div>
                         <div class="mt-4 text-center">
                             <div class="text-xl font-semibold">{{ user.name }} {{ user.last_name }}</div>
@@ -31,14 +31,28 @@
                 <!-- Home -->
                 <mat-tab label="Inicio">
                     <ng-template matTabContent>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 w-full min-w-0">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full min-w-0">
+                            <!-- Account Numbers -->
+                            <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
+                                <div class="flex items-start justify-between">
+                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Números de Cuenta</div>
+                                </div>
+                                <div class="flex flex-col mt-2">
+                                    <ul>
+                                        <li *ngFor="let accountNumber of user.account_numbers">
+                                            <div class="text-lg font-medium text-gray-700">{{ accountNumber }}</div>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+
                             <!-- Account Balance -->
                             <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
                                 <div class="flex items-start justify-between">
                                     <div class="text-lg font-medium tracking-tight leading-6 truncate">Saldo de Cuenta</div>
                                     <div class="ml-2 -mt-2 -mr-3">
                                         <button mat-icon-button [matMenuTriggerFor]="balanceMenu">
-                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_mini:ellipsis-vertical'"></mat-icon>
+                                            <mat-icon class="icon-size-5">more_vert</mat-icon>
                                         </button>
                                         <mat-menu #balanceMenu="matMenu">
                                             <button mat-menu-item>Actualizar</button>
@@ -48,15 +62,15 @@
                                 </div>
                                 <div class="flex flex-col items-center mt-2">
                                     <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-blue-600">
-                                        <span *ngIf="isBalanceVisible">{{ balance | currency }}</span>
+                                        <span *ngIf="isBalanceVisible">{{ user.available_balance | currency }}</span>
                                         <span *ngIf="!isBalanceVisible">••••••</span>
                                     </div>
-                                    <div class="text-lg font-medium text-blue-700 dark:text-blue-500">Disponible</div>
+                                    <div class="text-lg font-medium text-blue-700">Disponible</div>
                                     <button mat-icon-button (click)="toggleBalanceVisibility()">
                                         <mat-icon>{{ isBalanceVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
                                     </button>
                                 </div>
-                            </div>                            
+                            </div>
 
                             <!-- Recent Transactions -->
                             <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
@@ -64,7 +78,7 @@
                                     <div class="text-lg font-medium tracking-tight leading-6 truncate">Transacciones Recientes</div>
                                     <div class="ml-2 -mt-2 -mr-3">
                                         <button mat-icon-button [matMenuTriggerFor]="transactionsMenu">
-                                            <mat-icon class="icon-size-5" [svgIcon]="'heroicons_mini:ellipsis-vertical'"></mat-icon>
+                                            <mat-icon class="icon-size-5">more_vert</mat-icon>
                                         </button>
                                         <mat-menu #transactionsMenu="matMenu">
                                             <button mat-menu-item>Ver todas</button>
@@ -72,11 +86,23 @@
                                         </mat-menu>
                                     </div>
                                 </div>
-                                <div class="flex flex-col items-center mt-2">
-                                    <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-green-600">
-                                        {{ transactions }}
-                                    </div>
-                                    <div class="text-lg font-medium text-green-700 dark:text-green-500">Transacciones</div>
+                                <div class="flex flex-col mt-2">
+                                    <ul>
+                                        <li *ngFor="let transfer of user.sent_transfers">
+                                            <div class="flex justify-between text-lg text-red-600 mb-2">
+                                                <span>{{ transfer.date | date:'shortDate' }}</span>
+                                                <span>-{{ transfer.amount | currency }}</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">{{ transfer.description }}</div>
+                                        </li>
+                                        <li *ngFor="let transfer of user.received_transfers">
+                                            <div class="flex justify-between text-lg text-green-600 mb-2">
+                                                <span>{{ transfer.date | date:'shortDate' }}</span>
+                                                <span>+{{ transfer.amount | currency }}</span>
+                                            </div>
+                                            <div class="text-sm text-gray-500">{{ transfer.description }}</div>
+                                        </li>
+                                    </ul>
                                 </div>
                             </div>
                         </div>

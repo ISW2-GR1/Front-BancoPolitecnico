@@ -11,7 +11,8 @@ import { NgApexchartsModule } from 'ng-apexcharts';
 import { UserService } from 'app/core/user/user.service';
 import { Subscription } from 'rxjs';
 import { CurrencyPipe, NgClass, NgFor, NgIf } from '@angular/common';
-import { User } from 'app/core/user/user.types'; // Asegúrate de que User esté correctamente importado
+import { User } from 'app/core/user/user.types';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'project',
@@ -32,7 +33,8 @@ import { User } from 'app/core/user/user.types'; // Asegúrate de que User esté
         NgIf, 
         MatTableModule, 
         NgClass, 
-        CurrencyPipe
+        CurrencyPipe,
+        CommonModule
     ],
 })
 export class ProjectComponent implements OnInit, OnDestroy {
@@ -48,27 +50,32 @@ export class ProjectComponent implements OnInit, OnDestroy {
         country: '',
         birthday: null,
         role: '',
-        avatar: ''
+        avatar: '',
+        balance: 0,
+        transactions: 0,
+        contacts: [],
+        sent_transfers: [],
+        received_transfers: [],
+        available_balance: 0,
+        account_numbers: []
     };
     private _userSubscription: Subscription;
     defaultAvatar: string = 'https://img1.pnghut.com/12/24/21/aPnT6zYdni/user-profile-black-facebook-linkedin-symbol.jpg';
     isBalanceVisible: boolean = true;
-    balance: number = 120;
-    transactions: number = 5; 
 
     constructor(
         private _userService: UserService,
-        private cdr: ChangeDetectorRef // Injecta ChangeDetectorRef
+        private cdr: ChangeDetectorRef
     ) {}
 
     ngOnInit(): void {
         this._userSubscription = this._userService.get().subscribe((user: User) => {
-            console.log('User from service:', user);
+            console.log(user); // Añadir este log
             this.user = user;
             this.cdr.markForCheck();
         });
     }
-
+    
     ngOnDestroy(): void {
         if (this._userSubscription) {
             this._userSubscription.unsubscribe();

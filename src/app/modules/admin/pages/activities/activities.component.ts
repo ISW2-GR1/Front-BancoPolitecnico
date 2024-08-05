@@ -1,77 +1,86 @@
-import { AsyncPipe, DatePipe, NgFor, NgIf, TitleCasePipe } from '@angular/common';
-import { ChangeDetectionStrategy, Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+    AsyncPipe,
+    DatePipe,
+    NgFor,
+    NgIf,
+    TitleCasePipe,
+} from '@angular/common';
+import {
+    ChangeDetectionStrategy,
+    Component,
+    OnInit,
+    ViewEncapsulation,
+} from '@angular/core';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { ActivitiesService } from 'app/modules/admin/pages/activities/activities.service';
-import { Activity } from 'app/modules/admin/pages/activities/activities.types';
+import { TranslocoTranspilerFunction } from '@ngneat/transloco';
+import { Observable, of } from 'rxjs';
 import { DateTime } from 'luxon';
-import { Observable } from 'rxjs';
 
 @Component({
-    selector       : 'activity',
-    templateUrl    : './activities.component.html',
-    encapsulation  : ViewEncapsulation.None,
+    selector: 'activity',
+    templateUrl: './activities.component.html',
+    encapsulation: ViewEncapsulation.None,
     changeDetection: ChangeDetectionStrategy.OnPush,
-    standalone     : true,
-    imports        : [NgIf, NgFor, MatIconModule, RouterLink, AsyncPipe, TitleCasePipe, DatePipe],
+    standalone: true,
+    imports: [
+        NgIf,
+        NgFor,
+        MatFormFieldModule,
+        MatInputModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatIconModule,
+        RouterLink,
+        AsyncPipe,
+        TitleCasePipe,
+        DatePipe
+    ],
 })
-export class ActivitiesComponent implements OnInit
-{
-    activities$: Observable<Activity[]>;
+export class ActivitiesComponent implements OnInit {
+
+    transactions$: Observable<any[]>; // Cambia el tipo a un array de objetos genéricos
 
     /**
      * Constructor
      */
-    constructor(public _activityService: ActivitiesService)
-    {
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Lifecycle hooks
-    // -----------------------------------------------------------------------------------------------------
+    constructor() {}
 
     /**
      * On init
      */
-    ngOnInit(): void
-    {
-        // Get the activities
-        this.activities$ = this._activityService.activities;
+    ngOnInit(): void {
+        // Datos de ejemplo
+        const transactions = [
+            { date: '2024-08-01', description: 'Transferencia Recibida', amount: 150.00, type: 'Ingreso' },
+            { date: '2024-08-03', description: 'Pago de Servicios', amount: -50.00, type: 'Egreso' },
+            { date: '2024-08-04', description: 'Compra en Supermercado', amount: -75.00, type: 'Egreso' },
+            { date: '2024-08-05', description: 'Transferencia Enviada', amount: -200.00, type: 'Egreso' }
+        ];
+
+        this.transactions$ = of(transactions);
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Returns whether the given dates are different days
-     *
-     * @param current
-     * @param compare
-     */
-    isSameDay(current: string, compare: string): boolean
-    {
-        return DateTime.fromISO(current).hasSame(DateTime.fromISO(compare), 'day');
+    generatePdf() {
+        // Implementa la lógica para generar un PDF
+        console.log('Generating PDF...');
     }
 
-    /**
-     * Get the relative format of the given date
-     *
-     * @param date
-     */
-    getRelativeFormat(date: string): string
-    {
-        return DateTime.fromISO(date).toRelativeCalendar();
+    getRelativeFormat(date: string): string {
+        return DateTime.fromISO(date).toRelative(); 
     }
 
-    /**
-     * Track by function for ngFor loops
-     *
-     * @param index
-     * @param item
-     */
-    trackByFn(index: number, item: any): any
-    {
-        return item.id || index;
+    isSameDay(date1: string, date2: string): boolean {
+        const dt1 = DateTime.fromISO(date1);
+        const dt2 = DateTime.fromISO(date2);
+        return dt1.hasSame(dt2, 'day');
+    }
+    applyFilters() {
+        // Implementa la lógica para aplicar filtros
+        console.log('Applying filters...');
     }
 }

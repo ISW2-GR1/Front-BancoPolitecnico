@@ -46,13 +46,13 @@ export const defaultNavigation: FuseNavigationItem[] = [
                         id   : 'apps.ecommerce.inventory',
                         title: 'Resumen',
                         type : 'basic',
-                        link : '/apps/ecommerce/inventory',
+                        link : '/pages/activities',
                     },
                     {
                         id   : 'apps.academy',
                         title: 'Mis Cuentas',
                         type : 'basic',
-                        link : '/apps/academy',
+                        link : '/pages/profile',
                     },
 
                 ],

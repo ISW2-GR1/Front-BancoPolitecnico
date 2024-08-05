@@ -1,95 +1,102 @@
 import { NgIf } from '@angular/common';
-import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
-import { FormsModule, NgForm, ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select'; // Importar MatSelectModule
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { fuseAnimations } from '@fuse/animations';
-import { FuseAlertComponent, FuseAlertType } from '@fuse/components/alert';
-import { AuthService } from 'app/core/auth/auth.service';
+import { FuseAlertComponent } from '@fuse/components/alert';
+import { UserService } from 'app/core/user/user.service';
+import { TransferMoneyService } from 'app/services/transfer-money.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+// import { AddContactDialogComponent } from './add-contact-dialog/add-contact-dialog.component'; // Ajusta la ruta según tu estructura
 
 @Component({
-    selector     : 'coming-soon-classic',
-    templateUrl  : './coming-soon.component.html',
+    selector: 'coming-soon-classic',
+    templateUrl: './coming-soon.component.html',
     encapsulation: ViewEncapsulation.None,
-    animations   : fuseAnimations,
-    standalone   : true,
-    imports      : [NgIf, FuseAlertComponent, FormsModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule, MatButtonModule, MatProgressSpinnerModule],
+    animations: fuseAnimations,
+    standalone: true,
+    imports: [
+        NgIf, 
+        FuseAlertComponent, 
+        ReactiveFormsModule, 
+        MatFormFieldModule, 
+        MatInputModule, 
+        MatSelectModule, 
+        MatButtonModule, 
+        MatProgressSpinnerModule,
+        MatIconModule
+    ],
 })
-export class ComingSoonClassicComponent implements OnInit
-{
-    @ViewChild('comingSoonNgForm') comingSoonNgForm: NgForm;
-
-    alert: { type: FuseAlertType; message: string } = {
-        type   : 'success',
-        message: '',
-    };
-    comingSoonForm: UntypedFormGroup;
-    showAlert: boolean = false;
+export class ComingSoonClassicComponent implements OnInit {
+    transferForm: FormGroup;
+    userAccountNumbers: string[] = [];
+    showAlert = false;
+    alert: { type: string, message: string } = { type: '', message: '' };
 
     /**
      * Constructor
      */
     constructor(
-        private _authService: AuthService,
-        private _formBuilder: UntypedFormBuilder,
-    )
-    {
-    }
-
-    // -----------------------------------------------------------------------------------------------------
-    // @ Lifecycle hooks
-    // -----------------------------------------------------------------------------------------------------
+        private fb: FormBuilder,
+        private transferService: TransferMoneyService,
+        private userService: UserService,
+        public dialog: MatDialog
+    ) {}
 
     /**
      * On init
      */
-    ngOnInit(): void
-    {
-        // Create the form
-        this.comingSoonForm = this._formBuilder.group({
-            email: ['', [Validators.required, Validators.email]],
+    ngOnInit(): void {
+        this.transferForm = this.fb.group({
+            senderAccount: [null, Validators.required],
+            receiverAccount: [null, Validators.required],
+            amount: [null, [Validators.required, Validators.min(0)]],
+            otp: [null, Validators.required]
+        });
+
+        this.userService.get().subscribe(user => {
+            this.userAccountNumbers = user.account_numbers;
         });
     }
 
-    // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
-    // -----------------------------------------------------------------------------------------------------
-
-    /**
-     * Sign in
-     */
-    register(): void
-    {
-        // Return if the form is invalid
-        if ( this.comingSoonForm.invalid )
-        {
-            return;
+    submitTransfer(): void {
+        if (this.transferForm.valid) {
+            const { senderAccount, receiverAccount, amount, otp } = this.transferForm.value;
+            this.transferService.createTransfer({ sender_account: senderAccount, receiver_account: receiverAccount, amount }).subscribe(
+                response => {
+                    this.transferService.confirmTransfer({ otp }).subscribe(
+                        confirmResponse => {
+                            this.alert = { type: 'success', message: 'Transferencia realizada con éxito' };
+                            this.showAlert = true;
+                        },
+                        error => {
+                            this.alert = { type: 'error', message: 'Error al confirmar la transferencia' };
+                            this.showAlert = true;
+                        }
+                    );
+                },
+                error => {
+                    this.alert = { type: 'error', message: 'Error al realizar la transferencia' };
+                    this.showAlert = true;
+                }
+            );
         }
+    }
 
-        // Disable the form
-        this.comingSoonForm.disable();
+    openAddContactDialog(): void {
+        // const dialogRef = this.dialog.open(AddContactDialogComponent, {
+        //     width: '400px',
+        //     data: {} // Pasa los datos necesarios al diálogo
+        // });
 
-        // Hide the alert
-        this.showAlert = false;
-
-        // Do your action here...
-        // Emulate server delay
-        setTimeout(() =>
-        {
-            // Re-enable the form
-            this.comingSoonForm.enable();
-
-            // Reset the form
-            this.comingSoonNgForm.resetForm();
-
-            // Set the alert
-            this.alert = {
-                type   : 'success',
-                message: 'You have been registered to the list.',
-            };
-
-        }, 1000);
+        // dialogRef.afterClosed().subscribe(result => {
+        //     console.log('El diálogo se cerró');
+        //     // Manejar el resultado después de que el diálogo se cierre
+        // });
     }
 }
