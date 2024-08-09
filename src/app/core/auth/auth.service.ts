@@ -44,11 +44,15 @@ export class AuthService {
     // Public methods
 
     forgotPassword(email: string): Observable<any> {
-        return this._httpClient.post(`${this.baseUrl}forgot-password`, { email });
+        return this._httpClient.post(`${this.baseUrl}password-reset/`, { email });
     }
 
-    resetPassword(password: string): Observable<any> {
-        return this._httpClient.post(`${this.baseUrl}reset-password`, { password });
+    resetPassword(token: string, newPassword: string, confirmPassword: string): Observable<any> {
+        return this._httpClient.post(`${this.baseUrl}password-reset-confirm/`, { 
+            token, 
+            new_password: newPassword, 
+            confirm_password: confirmPassword 
+        });
     }
 
     signIn(credentials: { email: string; password: string }): Observable<any> {
