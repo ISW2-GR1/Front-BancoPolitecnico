@@ -5,29 +5,54 @@ import { AuthService } from 'app/core/auth/auth.service';
 import { Observable, ReplaySubject } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root',
 })
 export class BankAccountService {
+    private baseUrl = environment.apiUrl;
 
-  private baseUrl = environment.apiUrl;
-  private _authService = inject(AuthService);
+    constructor(private http: HttpClient, private _authService: AuthService) {}
 
-  constructor(
-    private http: HttpClient
-  ) { }
+    // Verificar la cédula para enviar el código de verificación
+    verifyIdentity(cedula: string): Observable<any> {
+        const token = this._authService.accessToken;
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+    
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        });
+    
+        return this.http.post<any>(
+            `${this.baseUrl}verify-cedula-and-send-code/`,
+            { cedula },
+            { headers }
+        );
+    }
+    
 
+    //verificar el codigo de verificacion enviado al correo del usuario autenticado
+    verifyCode(verificationCode: string): Observable<any> {
+        const token = this._authService.accessToken;
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
 
-  //Create a new bank account
-  createBankAccount(data: any) {
-    const token = this._authService.accessToken;
-    if (!token) {
-      throw new Error('Access token is not available');
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        return this.http.post<any>(
+            `${this.baseUrl}verify-code-and-create-account/`,
+            { verification_code: verificationCode },
+            { headers }
+        );
     }
 
-    const headers = new HttpHeaders({
-      'Authorization': `Bearer ${token}`
-    });
 
-    return this.http.post<any>(`${this.baseUrl}create-bank-account/`, data, { headers }).pipe;
-  }
+    //Verificar cedula es ecuatoriana o si ya existe en la base de datos, no necesita estar autenticado
+    verifyCedula(cedula: string): Observable<any> {
+        return this.http.post<any>(`${this.baseUrl}verify-cedula/`, { cedula });
+    }
 }

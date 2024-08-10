@@ -45,67 +45,67 @@ export class AuthForgotPasswordComponent implements OnInit
     // -----------------------------------------------------------------------------------------------------
 
     /**
-     * On init
+     * En inicialización
      */
     ngOnInit(): void
     {
-        // Create the form
+        // Crear el formulario
         this.forgotPasswordForm = this._formBuilder.group({
             email: ['', [Validators.required, Validators.email]],
         });
     }
 
     // -----------------------------------------------------------------------------------------------------
-    // @ Public methods
+    // @ Métodos públicos
     // -----------------------------------------------------------------------------------------------------
 
     /**
-     * Send the reset link
+     * Enviar el enlace de reinicio
      */
     sendResetLink(): void
     {
-        // Return if the form is invalid
+        // Regresar si el formulario es inválido
         if ( this.forgotPasswordForm.invalid )
         {
             return;
         }
 
-        // Disable the form
+        // Desactivar el formulario
         this.forgotPasswordForm.disable();
 
-        // Hide the alert
+        // Ocultar la alerta
         this.showAlert = false;
 
-        // Forgot password
+        // Olvidó la contraseña
         this._authService.forgotPassword(this.forgotPasswordForm.get('email').value)
             .pipe(
                 finalize(() =>
                 {
-                    // Re-enable the form
+                    // Volver a habilitar el formulario
                     this.forgotPasswordForm.enable();
 
-                    // Reset the form
+                    // Restablecer el formulario
                     this.forgotPasswordNgForm.resetForm();
 
-                    // Show the alert
+                    // Mostrar la alerta
                     this.showAlert = true;
                 }),
             )
             .subscribe(
                 (response) =>
                 {
-                    // Set the alert
+                    // Establecer la alerta
                     this.alert = {
                         type   : 'success',
-                        message: 'Password reset sent! You\'ll receive an email if you are registered on our system.',
+                        message: '¡Enlace de reinicio de contraseña enviado! Recibirás un correo electrónico si estás registrado en nuestro sistema.',
                     };
                 },
                 (response) =>
                 {
-                    // Set the alert
+                    // Establecer la alerta
                     this.alert = {
                         type   : 'error',
-                        message: 'Email does not found! Are you sure you are already a member?',
+                        message: '¡Correo electrónico no encontrado! ¿Estás seguro de que ya eres miembro?',
                     };
                 },
             );

@@ -1,126 +1,167 @@
 <div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
+    <!-- Columna de Contenido -->
     <div
         class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
         <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+
             <!-- Logo -->
             <div class="w-12">
                 <img src="assets/images/logo/logo.svg">
             </div>
 
-            <!-- Title -->
             <div class="mt-8 text-4xl font-extrabold tracking-tight leading-tight">Regístrate</div>
             <div class="flex items-baseline mt-0.5 font-medium">
                 <div>¿Ya tiene una cuenta?</div>
                 <a class="ml-1 text-primary-500 hover:underline" [routerLink]="['/sign-in']">Iniciar Sesion
                 </a>
             </div>
-
+            
             <!-- Alert -->
             <fuse-alert class="mt-8" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="false" [type]="alert.type"
                 [@shake]="alert.type === 'error'">
                 {{ alert.message }}
             </fuse-alert>
 
-            <!-- Sign Up form -->
-            <form class="mt-8" [formGroup]="signUpForm" #signUpNgForm="ngForm">
-
-                <!-- Name field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Nombre</mat-label>
-                    <input id="name" matInput [formControlName]="'name'">
-                    <mat-error *ngIf="signUpForm.get('name').hasError('required')">
-                        El campo nombre es obligatorio
-                    </mat-error>
-                </mat-form-field>
-                
-            
-                <mat-form-field class="w-full">
-                    <mat-label>Nombre de Usuario </mat-label>
-                    <input id="username" matInput [formControlName]="'username'">
-                    <mat-error *ngIf="signUpForm.get('username').hasError('required')">
-                        El campo nombre de usuario es obligatorio
-                    </mat-error>
-                </mat-form-field>
-            
-                <!-- Last Name field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Apellido</mat-label>
-                    <input id="last_name" matInput [formControlName]="'last_name'" #last_nameField>
-                    <mat-error *ngIf="signUpForm.get('last_name').hasError('required')">
-                        El campo apellido es obligatorio
-                    </mat-error>
-                </mat-form-field>
-            
-                <!-- Cedula field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Cédula</mat-label>
-                    <input id="cedula" matInput [formControlName]="'cedula'" #cedulaField>
-                    <mat-error *ngIf="signUpForm.get('cedula').hasError('required')">
-                        El campo cedula es obligatorio
-                    </mat-error>
-                </mat-form-field>
-            
-                <!-- Email field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Correo Electrónico</mat-label>
-                    <input id="email" matInput [formControlName]="'email'">
-                    <mat-error *ngIf="signUpForm.get('email').hasError('required')">
-                       La dirección de correo electrónico obligatoria
-                    </mat-error>
-                    <mat-error *ngIf="signUpForm.get('email').hasError('email')">
-                        Por favor ingrese un correo electronico valido
-                    </mat-error>
-                </mat-form-field>
-            
-                <!-- Password field -->
-                <mat-form-field class="w-full">
-                    <mat-label>Contraseña</mat-label>
-                    <input id="password" matInput type="password" [formControlName]="'password'" #passwordField >
-                    <button mat-icon-button type="button"
-                        (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
-                        matSuffix>
-                        <mat-icon class="icon-size-5" *ngIf="passwordField.type === 'password'"
-                            [svgIcon]="'heroicons_solid:eye'"></mat-icon>
-                        <mat-icon class="icon-size-5" *ngIf="passwordField.type === 'text'"
-                            [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
+            <!-- Formulario de Registro -->
+            <form class="w-full" [formGroup]="signUpForm" #signUpNgForm="ngForm">
+                <!-- Paso 1: Validación de Cédula -->
+                <div *ngIf="!cedulaVerified" class="space-y-4">
+                    <!-- Campo de Cédula -->
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label class="text-gray-700">Cédula</mat-label>
+                        <input matInput formControlName="cedula" required />
+                        <mat-error *ngIf="signUpForm.get('cedula').hasError('backend')">
+                            {{ backendErrors['cedula'] ? backendErrors['cedula'][0] : 'Cédula no válida.' }}
+                        </mat-error>
+                    </mat-form-field>
+                    <!-- Botón de Verificación -->
+                    <button mat-raised-button color="primary" (click)="verifyCedula()" class="w-full max-w-xs">
+                        Verificar Cédula
                     </button>
-                    <mat-error>
-                       La contraseña es obligatoria
-                       <br>
-                       La contraseña debe tener al menos 8 digitos
-                       <br>
-                       La contraseña debe tener caracteres especiales
-                    </mat-error>
-                    <br>
-                    <br>
-                </mat-form-field>
-            
-                <!-- ToS and PP -->
-                <div class="inline-flex items-end w-full mt-10">
-                    <mat-checkbox class="-ml-2" [color]="'primary'" [formControlName]="'agreements'">
-                        <span>Estoy de acuerdo con los </span>
-                        <a class="ml-1 text-primary-500 hover:underline" [routerLink]="['./']">Terminos
-                        </a>
-                        <span>y</span>
-                        <a class="ml-1 text-primary-500 hover:underline" [routerLink]="['./']">Politicas de privacidad
-                        </a>
-                    </mat-checkbox>
                 </div>
-            
-                <!-- Submit button -->
-                <button class="fuse-mat-button-large w-full mt-6" mat-flat-button [color]="'primary'"
-                    [disabled]="signUpForm.disabled" (click)="signUp()">
-                    <span *ngIf="!signUpForm.disabled">
-                        Crear cuenta 
-                    </span>
-                    <mat-progress-spinner *ngIf="signUpForm.disabled" [diameter]="24"
-                        [mode]="'indeterminate'"></mat-progress-spinner>
-                </button>
-            
+
+                <!-- Paso 2: Registro de Información Adicional -->
+                <div *ngIf="cedulaVerified">
+                    <!-- Nombre -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Nombre</mat-label>
+                        <input matInput formControlName="name" required />
+                        <mat-error *ngIf="signUpForm.get('name').hasError('backend')">
+                            {{ backendErrors['name'] ? backendErrors['name'][0] : 'Nombre no válido.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Apellido -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Apellido</mat-label>
+                        <input matInput formControlName="last_name" required />
+                        <mat-error *ngIf="signUpForm.get('last_name').hasError('backend')">
+                            {{ backendErrors['last_name'] ? backendErrors['last_name'][0] : 'Apellido no válido.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Nombre de Usuario -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Nombre de Usuario</mat-label>
+                        <input matInput formControlName="username" required />
+                        <mat-error *ngIf="signUpForm.get('username').hasError('backend')">
+                            {{ backendErrors['username'] ? backendErrors['username'][0] : 'Nombre de usuario no válido.'
+                            }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Email -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Correo Electrónico</mat-label>
+                        <input matInput formControlName="email" required />
+                        <mat-error *ngIf="signUpForm.get('email').hasError('backend')">
+                            {{ backendErrors['email'] ? backendErrors['email'][0] : 'Correo electrónico no válido.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Contraseña -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Contraseña</mat-label>
+                        <input id="password" matInput type="password" [formControlName]="'password'" #passwordField />
+                        <button mat-icon-button type="button"
+                            (click)="passwordField.type === 'password' ? passwordField.type = 'text' : passwordField.type = 'password'"
+                            matSuffix>
+                            <mat-icon class="icon-size-5" *ngIf="passwordField.type === 'password'"
+                                [svgIcon]="'heroicons_solid:eye'"></mat-icon>
+                            <mat-icon class="icon-size-5" *ngIf="passwordField.type === 'text'"
+                                [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
+                        </button>
+                        <mat-error *ngIf="signUpForm.get('password').hasError('backend')">
+                            {{ backendErrors['password'] ? backendErrors['password'][0] : 'Contraseña no válida.' }}
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('password').hasError('required')">
+                            La contraseña es obligatoria
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('password').hasError('minlength')">
+                            La contraseña debe tener al menos 8 dígitos
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('password').hasError('pattern')">
+                            La contraseña debe tener caracteres especiales
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Teléfono -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Teléfono</mat-label>
+                        <input matInput formControlName="phone" required />
+                        <mat-error *ngIf="signUpForm.get('phone').hasError('backend')">
+                            {{ backendErrors['phone'] ? backendErrors['phone'][0] : 'Teléfono no válido.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Dirección -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Dirección</mat-label>
+                        <input matInput formControlName="address" required />
+                        <mat-error *ngIf="signUpForm.get('address').hasError('backend')">
+                            {{ backendErrors['address'] ? backendErrors['address'][0] : 'Dirección no válida.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- Ciudad -->
+                    <mat-form-field class="w-full">
+                        <mat-label>Ciudad</mat-label>
+                        <input matInput formControlName="city" required />
+                        <mat-error *ngIf="signUpForm.get('city').hasError('backend')">
+                            {{ backendErrors['city'] ? backendErrors['city'][0] : 'Ciudad no válida.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- País -->
+                    <mat-form-field class="w-full">
+                        <mat-label>País</mat-label>
+                        <input matInput formControlName="country" required />
+                        <mat-error *ngIf="signUpForm.get('country').hasError('backend')">
+                            {{ backendErrors['country'] ? backendErrors['country'][0] : 'País no válido.' }}
+                        </mat-error>
+                    </mat-form-field>
+
+                    <!-- ToS and PP -->
+                    <div class="mt-6 flex items-center">
+                        <mat-checkbox class="mr-2" [color]="'primary'" [formControlName]="'agreements'">
+                            Acepto los <a class="text-primary-500 hover:underline"
+                                [routerLink]="['/terms']">Términos</a> y
+                            <a class="text-primary-500 hover:underline" [routerLink]="['/privacy']">Políticas de
+                                Privacidad</a>
+                        </mat-checkbox>
+                    </div>
+
+                    <!-- Botón de Registro -->
+                    <button class="w-full mt-6" mat-raised-button color="primary" [disabled]="signUpForm.invalid"
+                        (click)="signUp()">
+                        Crear cuenta
+                    </button>
+                </div>
             </form>
-            
         </div>
     </div>
+
+    <!-- Columna de Imagen -->
     <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden"
         style="background-color: #008080;" dark:border-l>
         <svg class="absolute inset-0 pointer-events-none" viewBox="0 0 960 540" width="100%" height="100%"

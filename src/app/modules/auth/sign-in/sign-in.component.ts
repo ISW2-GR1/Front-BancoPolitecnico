@@ -40,7 +40,7 @@ export class AuthSignInComponent implements OnInit
 
     ngOnInit(): void
     {
-        // Create the form
+        // Crear el formulario
         this.signInForm = this._formBuilder.group({
             email     : ['', [Validators.required, Validators.email]],
             password  : ['', Validators.required],
@@ -63,19 +63,19 @@ export class AuthSignInComponent implements OnInit
                 (response) =>
                 {
                     // Aquí manejas la respuesta de éxito
-                    console.log('Login successful', response); // <-- Mensaje de consola para éxito
+                    console.log('Inicio de sesión exitoso', response); // <-- Mensaje de consola para éxito
                     const redirectURL = this._activatedRoute.snapshot.queryParamMap.get('redirectURL') || '/signed-in-redirect';
                     this._router.navigateByUrl(redirectURL);
                 },
                 (error) =>
                 {
                     // Aquí manejas el error
-                    console.error('Login error', error); // <-- Mensaje de consola para error
+                    console.error('Error de inicio de sesión', error); // <-- Mensaje de consola para error
                     this.signInForm.enable();
                     this.signInNgForm.resetForm();
                     this.alert = {
                         type   : 'error',
-                        message: 'Wrong email or password',
+                        message: 'Correo electrónico o contraseña incorrectos',
                     };
                     this.showAlert = true;
                 },

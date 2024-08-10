@@ -1,23 +1,25 @@
 <div class="flex flex-col flex-auto min-w-0">
     <!-- Main -->
-    <div class="flex flex-auto justify-center w-full max-w-5xl mx-auto p-6 sm:p-8">
+    <div class="flex flex-auto justify-center w-full max-w-6xl mx-auto p-6 sm:p-8">
         <div class="flex flex-col w-full">
             <!-- Header -->
-            <div class="flex items-center justify-between mb-8">
-                <h1 class="text-2xl font-bold">Mis Cuentas Bancarias</h1>
-                <button mat-flat-button color="primary" (click)="openAddAccountDialog()">Agregar Cuenta</button>
+            <div class="flex flex-col sm:flex-row items-center justify-between mb-8">
+                <h1 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4 sm:mb-0">Mis Cuentas Bancarias</h1>
+                <button mat-raised-button color="primary" (click)="openAddAccountDialog()" class="w-full sm:w-auto rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2">
+                    <mat-icon>add</mat-icon> Agregar Cuenta
+                </button>
             </div>
             
             <!-- Bank Accounts List -->
-            <fuse-card class="flex flex-col w-full p-6 sm:p-8 pb-6">
+            <fuse-card class="flex flex-col w-full p-6 sm:p-8 bg-white border border-gray-200 rounded-xl shadow-lg">
                 <div class="flex flex-col mt-4">
-                    <div *ngFor="let account of bankAccounts" class="mb-4 p-4 border rounded-lg shadow-md">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <div class="font-semibold">Número de Cuenta: {{ account.number }}</div>
-                                <div>Saldo: {{ account.balance | currency:'USD' }}</div>
+                    <div *ngFor="let account of bankAccounts" class="mb-4 p-6 border rounded-lg shadow-md bg-white transition-transform transform hover:scale-105 hover:shadow-xl">
+                        <div class="flex flex-col sm:flex-row items-center justify-between">
+                            <div class="flex flex-col">
+                                <div class="font-semibold text-lg text-gray-800">Número de Cuenta: {{ account.number }}</div>
+                                <div class="text-sm text-gray-600">Saldo: {{ account.balance | currency:'USD' }}</div>
                             </div>
-                            <button mat-icon-button color="warn" (click)="openConfirmDeleteDialog(account.number)">
+                            <button mat-icon-button color="warn" (click)="openConfirmDeleteDialog(account.number)" class="mt-2 sm:mt-0 hover:bg-red-100 transition-colors">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
@@ -26,12 +28,12 @@
             </fuse-card>
             
             <!-- Promotional Section -->
-            <fuse-card class="flex flex-col w-full p-6 sm:p-8 mt-6 bg-blue-50 border border-blue-200 rounded-lg shadow-lg">
+            <fuse-card class="flex flex-col w-full p-6 sm:p-8 mt-6 bg-blue-50 border border-blue-200 rounded-xl shadow-lg">
                 <div class="flex flex-col items-center text-center">
-                    <h2 class="text-xl font-bold mb-4 text-blue-800">¡Aprovecha Nuestra Oferta Exclusiva!</h2>
-                    <p class="mb-4">Abre una nueva cuenta y disfruta de un 2% de interés adicional en tu primer año. ¡No pierdas esta oportunidad!</p>
-                    <img src="assets/images/promotion-image.jpeg" alt="Promoción" style="width: 150px; height: auto;" class="mb-4 rounded-lg shadow-md">
-                    <button mat-flat-button color="primary" (click)="learnMore()">Más Información</button>
+                    <h2 class="text-xl sm:text-3xl font-bold mb-4 text-blue-800">¡Aprovecha Nuestra Oferta Exclusiva!</h2>
+                    <p class="mb-4 text-sm sm:text-base text-gray-700 leading-relaxed">Abre una nueva cuenta y disfruta de un 2% de interés adicional en tu primer año. ¡No pierdas esta oportunidad!</p>
+                    <img src="assets/images/promotion-image.jpeg" alt="Promoción" class="w-48 h-auto mb-4 rounded-lg shadow-md">
+                    <button mat-raised-button color="primary" class="rounded-lg shadow-lg transition-transform transform hover:scale-105 hover:shadow-xl">Más Información</button>
                 </div>
             </fuse-card>
         </div>
@@ -40,49 +42,71 @@
 
 <!-- Add Account Dialog -->
 <ng-template #addAccountDialog>
-    <h2 mat-dialog-title>Verificar Identidad</h2>
-    <mat-dialog-content>
-        <mat-form-field class="w-full">
+    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
+        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Verificar Identidad</h2>
+        <fuse-alert
+            class="mb-4"
+            *ngIf="showAlert && alert.type === 'error'"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type">
+            {{alert.message}}
+        </fuse-alert>
+        <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su número de cédula para iniciar el proceso de verificación. Asegúrese de que el número ingresado sea correcto.</p>
+        <mat-form-field appearance="fill" class="w-full">
             <mat-label>Número de Cédula</mat-label>
-            <input matInput [(ngModel)]="cedulaNumber">
+            <input matInput [(ngModel)]="cedulaNumber" placeholder="Ingrese su número de cédula" required>
+            <mat-error *ngIf="cedulaNumber.length > 0 && cedulaNumber.length < 10">
+                El número de cédula debe tener al menos 10 dígitos.
+            </mat-error>
         </mat-form-field>
-        <button mat-flat-button color="primary" (click)="sendVerificationCode()">Enviar Código de Verificación</button>
-        <div *ngIf="verificationSent" class="mt-4">
-            <mat-form-field class="w-full">
-                <mat-label>Código de Verificación</mat-label>
-                <input matInput [(ngModel)]="verificationCode">
-            </mat-form-field>
-            <button mat-flat-button color="primary" (click)="verifyCode()">Verificar</button>
-        </div>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-button mat-dialog-close>Cancelar</button>
+    </div>
+    <mat-dialog-actions class="flex justify-end space-x-2">
+        <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
+        <button mat-raised-button color="primary" (click)="sendVerificationCode()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Enviar Código</button>
     </mat-dialog-actions>
 </ng-template>
 
 <!-- Confirm Delete Dialog -->
 <ng-template #confirmDeleteDialog>
-    <h2 mat-dialog-title>Confirmar Eliminación</h2>
-    <mat-dialog-content>
-        <p>¿Estás seguro de que deseas eliminar esta cuenta?</p>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-button (click)="dialog.closeAll()">Cancelar</button>
-        <button mat-flat-button color="warn" (click)="confirmDelete()">Eliminar</button>
+    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
+        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Confirmar Eliminación</h2>
+        <fuse-alert
+            class="mb-4"
+            *ngIf="showAlert && alert.type === 'error'"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type">
+            {{alert.message}}
+        </fuse-alert>
+        <p class="text-sm text-gray-700">¿Está seguro de que desea eliminar la cuenta {{ accountToDelete }}? Esta acción es irreversible y eliminará todos los datos asociados con esta cuenta.</p>
+    </div>
+    <mat-dialog-actions class="flex justify-end space-x-2">
+        <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
+        <button mat-raised-button color="warn" (click)="confirmDelete()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Eliminar</button>
     </mat-dialog-actions>
 </ng-template>
 
 <!-- Verify Code Dialog -->
 <ng-template #verifyCodeDialog>
-    <h2 mat-dialog-title>Verificar Código</h2>
-    <mat-dialog-content>
-        <mat-form-field class="w-full">
+    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
+        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Verificar Código</h2>
+        <fuse-alert
+            class="mb-4"
+            *ngIf="showAlert && alert.type === 'error'"
+            [appearance]="'outline'"
+            [showIcon]="false"
+            [type]="alert.type">
+            {{alert.message}}
+        </fuse-alert>
+        <p class="text-sm text-gray-600 mb-4">Ingrese el código de verificación enviado a su correo electrónico para completar el proceso de verificación.</p>
+        <mat-form-field appearance="fill" class="w-full">
             <mat-label>Código de Verificación</mat-label>
-            <input matInput [(ngModel)]="verificationCode">
+            <input matInput [(ngModel)]="verificationCode" placeholder="Ingrese el código de verificación" required>
         </mat-form-field>
-        <button mat-flat-button color="primary" (click)="verifyAndDelete()">Verificar y Eliminar</button>
-    </mat-dialog-content>
-    <mat-dialog-actions>
-        <button mat-button mat-dialog-close>Cancelar</button>
+    </div>
+    <mat-dialog-actions class="flex justify-end space-x-2">
+        <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
+        <button mat-raised-button color="primary" (click)="verifyCode()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Verificar Código</button>
     </mat-dialog-actions>
 </ng-template>
