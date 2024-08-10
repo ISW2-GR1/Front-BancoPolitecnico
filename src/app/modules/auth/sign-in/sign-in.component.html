@@ -1,7 +1,7 @@
 <div class="flex flex-col sm:flex-row items-center md:items-start sm:justify-center md:justify-start flex-auto min-w-0">
     <div
         class="md:flex md:items-center md:justify-end w-full sm:w-auto md:h-full md:w-1/2 py-8 px-4 sm:p-12 md:p-16 sm:rounded-2xl md:rounded-none sm:shadow md:shadow-none sm:bg-card">
-        <div class="w-full max-w-80 sm:w-80 mx-auto sm:mx-0">
+        <div class="w-full max-w-120 sm:w-110 mx-auto sm:mx-0">
             <!-- Logo -->
             <div class="w-12">
                 <img src="assets/images/logo/logo.svg">
@@ -35,7 +35,7 @@
                     <mat-label>Correo Electrónico</mat-label>
                     <input id="email" matInput [formControlName]="'email'">
                     <mat-error *ngIf="signInForm.get('email').hasError('required')">
-                       Dirección de correo electrónico obligatoria
+                        Dirección de correo electrónico obligatoria
                     </mat-error>
                     <mat-error *ngIf="signInForm.get('email').hasError('email')">
                         Por favor ingrese un correo electronico válido
@@ -55,7 +55,7 @@
                             [svgIcon]="'heroicons_solid:eye-slash'"></mat-icon>
                     </button>
                     <mat-error>
-                       El campo contraseña es obligatorio
+                        El campo contraseña es obligatorio
                     </mat-error>
                 </mat-form-field>
 
@@ -81,35 +81,41 @@
             </form>
         </div>
     </div>
-    <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden"
-        style="background-color: #008080;" dark:border-l>
+    <!-- Columna de Imagen -->
+    <div class="relative hidden md:flex flex-auto items-center justify-center w-1/2 h-full p-16 lg:px-28 overflow-hidden bg-teal-800 text-gray-100"
+        dark:border-l>
+        <!-- Fondo decorativo -->
         <svg class="absolute inset-0 pointer-events-none" viewBox="0 0 960 540" width="100%" height="100%"
             preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
-            <g class="text-teal-500 opacity-25" fill="none" stroke="#20B2AA" stroke-width="100">
+            <g class="text-teal-300 opacity-30" fill="none" stroke="#00B2A9" stroke-width="120">
                 <circle r="234" cx="196" cy="23"></circle>
                 <circle r="234" cx="790" cy="491"></circle>
             </g>
         </svg>
-        <svg class="absolute -top-16 -right-16 text-teal-500" viewBox="0 0 220 192" width="220" height="192"
+        <svg class="absolute -top-16 -right-16 text-teal-400" viewBox="0 0 220 192" width="220" height="192"
             fill="none">
             <defs>
-                <pattern id="837c3e70-6c3a-44e6-8854-cc48c737b659" x="0" y="0" width="20" height="20"
-                    patternUnits="userSpaceOnUse">
-                    <rect x="0" y="0" width="4" height="4" fill="#20B2AA"></rect>
+                <pattern id="pattern" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <rect x="0" y="0" width="4" height="4" fill="#00B2A9"></rect>
                 </pattern>
             </defs>
-            <rect width="220" height="192" fill="url(#837c3e70-6c3a-44e6-8854-cc48c737b659)"></rect>
+            <rect width="220" height="192" fill="url(#pattern)"></rect>
         </svg>
 
-        <div class="z-10 relative w-full max-w-2xl">
-            <div class="text-7xl font-bold leading-none text-gray-100">
-                <div>Bienvenido a</div>
-                <div>Banco Politécnico</div>
-            </div>
-            <div class="mt-6 text-lg tracking-tight leading-6 text-gray-400">
+        <div class="z-10 relative w-full max-w-2xl text-center">
+            <h1 class="text-7xl font-extrabold leading-tight text-gray-100">
+                <span class="block">Bienvenido a</span>
+                <span class="block text-teal-300">Banco Politécnico</span>
+            </h1>
+            <p class="mt-6 text-lg tracking-tight leading-7 text-gray-200">
                 Banco Politécnico, su socio confiable para guardar y hacer crecer su dinero.
-                Únase a nosotros hoy y descubra la tranquilidad financiera.
-            </div>
+                ¡Únase hoy y descubra la tranquilidad financiera que se merece!
+            </p>
+            <a href="/sign-up"
+                class="inline-block mt-8 px-8 py-4 text-lg font-semibold text-teal-800 bg-teal-300 rounded-lg shadow-lg hover:bg-teal-400 transition duration-300 ease-in-out">
+                ¡Regístrese Ahora!
+            </a>
         </div>
     </div>
+
 </div>
