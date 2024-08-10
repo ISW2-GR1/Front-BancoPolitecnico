@@ -1,11 +1,12 @@
 <div class="flex flex-col flex-auto min-w-0">
     <!-- Encabezado del Perfil -->
     <div class="flex flex-col items-center justify-center bg-white shadow-lg rounded-xl p-8 mb-8">
-        <img class="w-32 h-32 rounded-full border-4 border-teal-200 mb-4" src="https://via.placeholder.com/128"
+        <img class="w-32 h-32 rounded-full border-4 border-teal-200 mb-4" src="{{defaultAvatar}}"
             alt="Avatar del Usuario">
-        <h2 class="text-3xl font-bold text-teal-900 mb-2">Juan Pérez</h2>
-        <p class="text-teal-700 text-md mb-1">juanperezexample.com</p>
-        <p class="text-teal-500 text-sm mb-4">Miembro desde enero de 2022</p>
+        <h2 class="text-3xl font-bold text-teal-900 mb-2">{{ user.name }} {{ user.last_name }}</h2>
+        <h4 class="text-3xl font-bold text-teal-900 mb-2">{{ user.username }}</h4>
+        <p class="text-teal-700 text-md mb-1">{{ user.email }}</p>
+        <p class="text-teal-500 text-sm mb-4">Fecha de Ingreso: {{ user.joinDate | date:'dd/MM/yyyy HH:mm:ss' }}</p>
         <div class="flex space-x-4">
             <!-- Botón para Editar Perfil -->
             <button (click)="openEditProfileDialog()"
@@ -22,11 +23,11 @@
 
     <!-- Detalles de la Cuenta -->
     <div class="bg-white shadow-lg rounded-xl p-6 mb-8">
-        <h3 class="text-2xl font-semibold text-teal-900 mb-6">Detalles de la Cuenta</h3>
+        <h3 class="text-2xl font-semibold text-teal-900 mb-6">Detalles de la Cuenta Principal*</h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                 <h4 class="font-medium text-teal-800 mb-2">Número de Cuenta</h4>
-                <p class="text-teal-700">1234567890</p>
+                <p class="text-teal-700">{{ bankAccounts[0].account_number }}</p>
             </div>
             <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                 <h4 class="font-medium text-teal-800 mb-2">Tipo de Cuenta</h4>
@@ -34,7 +35,7 @@
             </div>
             <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                 <h4 class="font-medium text-teal-800 mb-2">Saldo</h4>
-                <p class="text-teal-700">$5,000.00</p>
+                <p class="text-teal-700">$ {{ bankAccounts[0].balance }}</p>
             </div>
             <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
                 <h4 class="font-medium text-teal-800 mb-2">Estado de la Cuenta</h4>
@@ -43,59 +44,53 @@
         </div>
     </div>
 
-    <!-- Actividades Recientes -->
+    <!-- Información Adicional -->
     <div class="bg-white shadow-lg rounded-xl p-6">
-        <h3 class="text-2xl font-semibold text-teal-900 mb-6">Actividades Recientes</h3>
-        <ul class="space-y-4">
-            <li class="flex items-center justify-between border-b border-teal-200 pb-4">
-                <div>
-                    <p class="font-medium text-teal-800">Transferencia a Ana López</p>
-                    <p class="text-teal-600 text-sm">10/08/2024</p>
-                </div>
-                <p class="text-green-600 font-semibold">$200.00</p>
-            </li>
-            <li class="flex items-center justify-between border-b border-teal-200 pb-4">
-                <div>
-                    <p class="font-medium text-teal-800">Depósito</p>
-                    <p class="text-teal-600 text-sm">25/07/2024</p>
-                </div>
-                <p class="text-blue-600 font-semibold">$500.00</p>
-            </li>
-            <li class="flex items-center justify-between border-b border-teal-200 pb-4">
-                <div>
-                    <p class="font-medium text-teal-800">Retiro</p>
-                    <p class="text-teal-600 text-sm">20/07/2024</p>
-                </div>
-                <p class="text-red-600 font-semibold">-$150.00</p>
-            </li>
-        </ul>
+        <h3 class="text-2xl font-semibold text-teal-900 mb-6">Información Adicional</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
+                <h4 class="font-medium text-teal-800 mb-2">Cedúla</h4>
+                <p class="text-teal-700">{{ user.cedula }}</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
+                <h4 class="font-medium text-teal-800 mb-2">Dirección de domicilio</h4>
+                <p class="text-teal-700">{{ user.address }}</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
+                <h4 class="font-medium text-teal-800 mb-2">Ciudad - Pais</h4>
+                <p class="text-teal-700">{{ user.city }}, {{ user.country}}</p>
+            </div>
+            <div class="p-4 bg-teal-50 rounded-lg shadow-sm">
+                <h4 class="font-medium text-teal-800 mb-2">Número Celular</h4>
+                <p class="text-teal-700">+593 {{ user.phone }}</p>
+            </div>
+        </div>
     </div>
 
-    <!-- Dialogo de Editar Perfil -->
-    <ng-template #editProfileDialog>
-        <div class="p-6">
-            <h2 class="text-2xl font-bold mb-4">Editar Perfil</h2>
+<!-- Dialogo de Editar Perfil -->
+<ng-template #editProfileDialog>
+    <div class="p-6">
+        <h2 class="text-2xl font-bold mb-4">Editar Perfil</h2>
 
-            <fuse-alert class="mb-4" *ngIf="showAlert && alert.type === 'error'" [appearance]="'outline'"
-                [showIcon]="false" [type]="alert.type">
-                {{alert.message}}
-            </fuse-alert>
-            <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su nuevo nombre de Usuario.</p>
+        <fuse-alert class="mb-4" *ngIf="showAlert && alert.type === 'error'" [appearance]="'outline'"
+            [showIcon]="false" [type]="alert.type">
+            {{alert.message}}
+        </fuse-alert>
+        <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su nuevo nombre de Usuario.</p>
 
-            <form [formGroup]="editProfileForm" (ngSubmit)="onSaveProfile()">
-                <div class="mb-4">
-                    <label class="block text-gray-700">Nombre de Usuario</label>
-                    <input formControlName="username" class="w-full px-4 py-2 border rounded" type="text">
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" class="px-4 py-2 mr-2 bg-gray-400 text-white rounded"
-                        (click)="closeDialog()">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded"
-                        [disabled]="editProfileForm.invalid">Guardar</button>
-                </div>
-            </form>
-        </div>
-    </ng-template>
+        <form [formGroup]="editProfileForm" (ngSubmit)="onSaveProfile()">
+            <div class="mb-4">
+                <label class="block text-gray-700">Nombre de Usuario</label>
+                <input formControlName="username" class="w-full px-4 py-2 border rounded" type="text">
+            </div>
+            <div class="flex justify-end">
+                <button type="button" class="px-4 py-2 mr-2 bg-gray-400 text-white rounded"
+                    (click)="closeEditProfileDialog()">Cancelar</button>
+                    <button mat-button type="button" (click)="onSaveProfile()">Guardar</button>
+            </div>
+        </form>
+    </div>
+</ng-template>
 
     <!-- Dialogo de Configuración (Cambiar Contraseña) -->
     <ng-template #changePasswordDialog>

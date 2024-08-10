@@ -16,14 +16,14 @@
                     <div *ngFor="let account of bankAccounts" class="mb-4 p-6 border rounded-lg shadow-md bg-white transition-transform transform hover:scale-105 hover:shadow-xl">
                         <div class="flex flex-col sm:flex-row items-center justify-between">
                             <div class="flex flex-col">
-                                <div class="font-semibold text-lg text-gray-800">Número de Cuenta: {{ account.number }}</div>
+                                <div class="font-semibold text-lg text-gray-800">Número de Cuenta: {{ account.account_number }}</div>
                                 <div class="text-sm text-gray-600">Saldo: {{ account.balance | currency:'USD' }}</div>
                             </div>
-                            <button mat-icon-button color="warn" (click)="openConfirmDeleteDialog(account.number)" class="mt-2 sm:mt-0 hover:bg-red-100 transition-colors">
+                            <button mat-icon-button color="warn" (click)="openConfirmDeleteDialog(account.account_number)" class="mt-2 sm:mt-0 hover:bg-red-100 transition-colors">
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
-                    </div>
+                    </div>                    
                 </div>
             </fuse-card>
             

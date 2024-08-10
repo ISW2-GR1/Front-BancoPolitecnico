@@ -6,6 +6,7 @@ import {
     ViewChild,
     TemplateRef,
     ViewEncapsulation,
+    ChangeDetectorRef,
 } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -21,12 +22,10 @@ import { FuseCardComponent } from '@fuse/components/card';
 import { BankAccountService } from 'app/services/bank-account.service';
 import { FormsModule } from '@angular/forms';
 import { FuseAlertComponent } from '@fuse/components/alert';
-
 @Component({
     selector: 'profile',
     templateUrl: './profile.component.html',
     encapsulation: ViewEncapsulation.None,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     standalone: true,
     imports: [
         CommonModule,
@@ -55,20 +54,20 @@ export class ProfileComponent {
     verificationCode = '';
     verificationSent = false;
     accountToDelete: string;
-    showAlert = false; // Propiedad booleana para controlar si se debe mostrar una alerta
+    showAlert = false;
     alert = { type: 'success' as 'success' | 'error', message: '' };
-    bankAccounts = [
-        { number: '1234567890', balance: 5000 },
-        { number: '0987654321', balance: 3000 },
-        { number: '1122334455', balance: 1500 },
-        { number: '5566778899', balance: 2500 },
-    ];
+    bankAccounts = [];
 
     constructor(
         private dialog: MatDialog,
         private _bankAccountService: BankAccountService,
-        private snackBar: MatSnackBar
+        private snackBar: MatSnackBar,
+        private cdr: ChangeDetectorRef
     ) {}
+
+    ngOnInit(): void {
+        this.loadBankAccounts();
+    }
 
     openAddAccountDialog(): void {
         const dialogRef = this.dialog.open(this.addAccountDialog, {
@@ -97,7 +96,7 @@ export class ProfileComponent {
             this.showAlertMessage('El número de cédula es requerido.', 'error');
             return;
         }
-
+    
         if (this.cedulaNumber.length < 10) {
             this.showAlertMessage(
                 'El número de cédula debe tener al menos 10 dígitos.',
@@ -105,12 +104,12 @@ export class ProfileComponent {
             );
             return;
         }
-
+    
         this._bankAccountService.verifyIdentity(this.cedulaNumber).subscribe(
             (response) => {
                 if (
                     response &&
-                    response.detail === 'Verification code sent to the user.'
+                    response.detail === 'Código de verificación enviado al usuario.'
                 ) {
                     this.verificationSent = true;
                     this.dialog.open(this.verifyCodeDialog, {
@@ -129,6 +128,7 @@ export class ProfileComponent {
                 }
             },
             (error) => {
+                console.error('Error al enviar el código de verificación:', error);
                 this.showAlertMessage(
                     'Error al enviar el código de verificación. Intente nuevamente.',
                     'error'
@@ -136,7 +136,6 @@ export class ProfileComponent {
             }
         );
     }
-
     verifyCode(): void {
         if (!this.verificationCode.trim()) {
             this.showAlertMessage(
@@ -145,13 +144,13 @@ export class ProfileComponent {
             );
             return;
         }
-
+    
         this._bankAccountService.verifyCode(this.verificationCode).subscribe(
             (response) => {
                 if (
                     response &&
                     response.detail ===
-                        'Bank account created successfully and email sent.'
+                        'Cuenta bancaria creada con éxito y correo enviado.'
                 ) {
                     this.showSuccessMessage('Cuenta creada exitosamente.');
                     this.dialog.closeAll();
@@ -166,13 +165,14 @@ export class ProfileComponent {
                 }
             },
             (error) => {
+                console.error('Error al verificar el código:', error);
                 this.showAlertMessage(
                     'Error al verificar el código. Intente nuevamente.',
                     'error'
                 );
             }
         );
-    }
+    }    
 
     openConfirmDeleteDialog(accountNumber: string): void {
         this.accountToDelete = accountNumber;
@@ -200,4 +200,22 @@ export class ProfileComponent {
             panelClass: ['success-snackbar'],
         });
     }
+
+    loadBankAccounts(): void {
+        this._bankAccountService.getBankAccounts().subscribe(
+            (response) => {
+                this.bankAccounts = response;
+                this.cdr.detectChanges();  // Forzar la detección de cambios
+                console.log('Cuentas bancarias:', this.bankAccounts);
+            },
+            (error) => {
+                console.error('Error al obtener las cuentas bancarias:', error);
+                this.showAlertMessage(
+                    'Error al cargar las cuentas bancarias. Intente nuevamente.',
+                    'error'
+                );
+            }
+        );
+    }    
+    
 }

@@ -55,4 +55,20 @@ export class BankAccountService {
     verifyCedula(cedula: string): Observable<any> {
         return this.http.post<any>(`${this.baseUrl}verify-cedula/`, { cedula });
     }
+
+    //Obtener las cuentas bancarias del usuario autenticado user/bank-accounts/
+    getBankAccounts(): Observable<any> {
+        const token = this._authService.accessToken;
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        return this.http.get<any>(`${this.baseUrl}user/bank-accounts/`, {
+            headers,
+        });
+    }
 }

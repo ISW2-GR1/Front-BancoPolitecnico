@@ -1,0 +1,29 @@
+/* Estilo para la ventana de información debajo de cada tarjeta de cuenta */
+.info-window {
+    position: relative;
+    background: white;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    width: 100%;
+    margin-top: 16px;
+}
+/* Oculta los íconos de "share" e "info" en pantallas pequeñas */
+@media (max-width: 640px) {
+    .icon-info,
+    .icon-share {
+        display: none; /* Oculta los íconos */
+    }
+    
+    .card-icons {
+        display: flex;
+        flex-direction: column;
+        margin-top: auto; /* Empuja los íconos hacia el fondo de la tarjeta */
+        align-items: flex-start; /* Alinea los íconos al principio */
+    }
+    
+    .card-content {
+        order: 0; /* Asegura que el contenido principal se mantenga arriba */
+    }
+}
