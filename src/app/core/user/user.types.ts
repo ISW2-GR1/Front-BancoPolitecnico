@@ -18,4 +18,5 @@ export interface User {
   received_transfers?: { amount: string }[];
   available_balance?: number;
   account_numbers?: string[];
+  joinDate?: Date;
 }

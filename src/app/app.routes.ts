@@ -72,7 +72,6 @@ export const appRoutes: Route[] = [
             {path: 'dashboards', children: [
                 {path: 'project', loadChildren: () => import('app/modules/admin/dashboards/project/project.routes')},
                 {path: 'analytics', loadChildren: () => import('app/modules/admin/dashboards/analytics/analytics.routes')},
-                {path: 'crypto', loadChildren: () => import('app/modules/admin/dashboards/crypto/crypto.routes')},
             ]},
 
 

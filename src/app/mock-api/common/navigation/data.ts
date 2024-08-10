@@ -23,16 +23,10 @@ export const defaultNavigation: FuseNavigationItem[] = [
                 children: [
                     {
                         id   : 'dashboards.analytics',
-                        title: 'Analytics',
+                        title: 'Mi Perfil',
                         type : 'basic',
                         link : '/dashboards/analytics',
-                    },
-                    {
-                        id   : 'dashboards.crypto',
-                        title: 'Crypto',
-                        type : 'basic',
-                        link : '/dashboards/crypto',
-                    },
+                    }
                 ]
             },
 

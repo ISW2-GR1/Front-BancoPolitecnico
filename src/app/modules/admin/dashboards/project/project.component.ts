@@ -57,7 +57,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
         sent_transfers: [],
         received_transfers: [],
         available_balance: 0,
-        account_numbers: []
+        account_numbers: [],
+        joinDate: new Date() // Esto se puede actualizar para reflejar la fecha actual en tiempo real
     };
     private _userSubscription: Subscription;
     defaultAvatar: string = 'https://img1.pnghut.com/12/24/21/aPnT6zYdni/user-profile-black-facebook-linkedin-symbol.jpg';
@@ -70,8 +71,11 @@ export class ProjectComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this._userSubscription = this._userService.get().subscribe((user: User) => {
-            console.log(user); // Añadir este log
+            console.log(user);
             this.user = user;
+            if (!this.user.joinDate) {
+                this.user.joinDate = new Date();
+            }
             this.cdr.markForCheck();
         });
     }

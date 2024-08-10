@@ -15,16 +15,15 @@ export class UserService {
     private _authService = inject(AuthService);
 
     // Setter & getter for user
-    set user(value: any) { // Cambiado a any
+    set user(value: any) { 
         this._user.next(value);
     }
 
-    get user$(): Observable<any> { // Cambiado a any
+    get user$(): Observable<any> { 
         return this._user.asObservable();
     }
 
-    // Get the current signed-in user data
-    get(): Observable<any> { // Cambiado a any
+    get(): Observable<any> {
         const token = this._authService.accessToken;
 
         if (!token) {
@@ -35,10 +34,44 @@ export class UserService {
             'Authorization': `Bearer ${token}`
         });
 
-        return this._httpClient.get<any>(`${this.baseUrl}profile/`, { headers }).pipe( // Cambiado a any
+        return this._httpClient.get<any>(`${this.baseUrl}profile/`, { headers }).pipe(
             tap((user) => {
                 this._user.next(user);
             })
         );
+    }
+
+    //Api para actualizar el perfil, unicamente el username
+    updateProfile(username: string): Observable<any> {
+        const token = this._authService.accessToken;
+
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
+        return this._httpClient.patch<any>(`${this.baseUrl}profile/`, { username }, { headers }).pipe(
+            tap((user) => {
+                this._user.next(user);
+            })
+        );
+    }
+
+    //Api para actualizar la contraseña del usuario autenticado update-password/
+    updatePassword(old_password: string, new_password: string): Observable<any> {
+        const token = this._authService.accessToken;
+
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+
+        const headers = new HttpHeaders({
+            'Authorization': `Bearer ${token}`
+        });
+
+        return this._httpClient.patch<any>(`${this.baseUrl}profile/update-password/`, { old_password, new_password }, { headers });
     }
 }

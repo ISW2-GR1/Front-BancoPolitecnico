@@ -1,22 +1,21 @@
 <div class="flex flex-col flex-auto min-w-0">
     <!-- Header -->
-    <div class="bg-primary py-4">
-        <div class="flex flex-col w-full max-w-screen-xl mx-auto px-6 sm:px-8">
-            <div class="flex flex-col sm:flex-row sm:items-center min-w-0 my-8 sm:my-12">
-                <!-- Banner -->
-                <div class="bg-banner bg-cover bg-center text-white p-6 rounded-lg flex flex-col sm:flex-row items-center justify-between">
-                    <div class="flex flex-col sm:w-3/4">
-                        <h2 class="text-3xl font-bold mb-2">¡Bienvenido a Banco Politécnico!</h2>
-                        <p class="text-lg">Gestiona tus finanzas de manera segura y eficiente. Disfruta de nuestros servicios de banca en línea con la máxima confianza.</p>
+    <div class="bg-teal-900 py-8 shadow-lg">
+        <div class="flex flex-col w-full max-w-screen-xl mx-auto px-6 sm:px-8 relative">
+            <!-- Banner -->
+            <div class="bg-teal-800 bg-cover bg-center text-white p-8 rounded-lg shadow-lg flex flex-col sm:flex-row items-center justify-between relative">
+                <div class="flex flex-col sm:w-3/4 mb-6 sm:mb-0">
+                    <h2 class="text-3xl sm:text-5xl font-bold mb-4 leading-tight">¡Bienvenido a Banco Politécnico!</h2>
+                    <p class="text-base sm:text-xl leading-relaxed mb-5">Gestiona tus finanzas con confianza y aprovecha nuestros servicios de banca en línea. Tu tranquilidad financiera comienza aquí.</p>
+                </div>
+                <div class="flex flex-col items-center">
+                    <div class="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-white shadow-lg">
+                        <img class="w-full h-full object-cover" [src]="user.avatar || defaultAvatar" alt="Avatar">
                     </div>
-                    <div class="flex flex-col items-center mt-4 sm:mt-0 sm:ml-6">
-                        <div class="flex-0 w-24 h-24 rounded-full overflow-hidden border-4 border-white">
-                            <img class="w-full h-full object-cover" [src]="user.avatar || defaultAvatar" alt="Avatar">
-                        </div>
-                        <div class="mt-4 text-center">
-                            <div class="text-xl font-semibold">{{ user.name }} {{ user.last_name }}</div>
-                            <div class="text-md text-gray-200">{{ user.email }}</div>
-                        </div>
+                    <div class="mt-4 text-center">
+                        <div class="text-2xl sm:text-4xl font-semibold">{{ user.name }} {{ user.last_name }}</div>
+                        <div class="text-base sm:text-lg text-gray-200">{{ user.email }}</div>
+                        <div class="text-sm sm:text-base text-gray-400 mt-2">Fecha de Ingreso: {{ user.joinDate | date:'dd/MM/yyyy HH:mm:ss' }}</div>
                     </div>
                 </div>
             </div>
@@ -24,85 +23,37 @@
     </div>
 
     <!-- Main -->
-    <div class="flex-auto border-t -mt-px pt-4 sm:pt-6">
-        <div class="w-full max-w-screen-xl mx-auto">
+    <div class="flex-auto border-t border-teal-300 pt-8 sm:pt-10">
+        <div class="w-full mx-auto px-6 sm:px-8">
             <!-- Tabs -->
-            <mat-tab-group class="sm:px-2" mat-stretch-tabs="false" [animationDuration]="'0'">
+            <mat-tab-group class="sm:px-4" mat-stretch-tabs="false" [animationDuration]="'0'">
                 <!-- Home -->
                 <mat-tab label="Inicio">
                     <ng-template matTabContent>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full min-w-0">
+                        <div class="w-full flex flex-col gap-8">
                             <!-- Account Numbers -->
-                            <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
-                                <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Números de Cuenta</div>
-                                </div>
-                                <div class="flex flex-col mt-2">
-                                    <ul>
-                                        <li *ngFor="let accountNumber of user.account_numbers">
-                                            <div class="text-lg font-medium text-gray-700">{{ accountNumber }}</div>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-
-                            <!-- Account Balance -->
-                            <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
-                                <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Saldo de Cuenta</div>
-                                    <div class="ml-2 -mt-2 -mr-3">
-                                        <button mat-icon-button [matMenuTriggerFor]="balanceMenu">
-                                            <mat-icon class="icon-size-5">more_vert</mat-icon>
-                                        </button>
-                                        <mat-menu #balanceMenu="matMenu">
-                                            <button mat-menu-item>Actualizar</button>
-                                            <button mat-menu-item>Historial</button>
-                                        </mat-menu>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col items-center mt-2">
-                                    <div class="text-7xl sm:text-8xl font-bold tracking-tight leading-none text-blue-600">
-                                        <span *ngIf="isBalanceVisible">{{ user.available_balance | currency }}</span>
-                                        <span *ngIf="!isBalanceVisible">••••••</span>
-                                    </div>
-                                    <div class="text-lg font-medium text-blue-700">Disponible</div>
-                                    <button mat-icon-button (click)="toggleBalanceVisibility()">
-                                        <mat-icon>{{ isBalanceVisible ? 'visibility_off' : 'visibility' }}</mat-icon>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Recent Transactions -->
-                            <div class="flex flex-col flex-auto p-6 bg-white shadow-lg rounded-2xl overflow-hidden border border-gray-200">
-                                <div class="flex items-start justify-between">
-                                    <div class="text-lg font-medium tracking-tight leading-6 truncate">Transacciones Recientes</div>
-                                    <div class="ml-2 -mt-2 -mr-3">
-                                        <button mat-icon-button [matMenuTriggerFor]="transactionsMenu">
-                                            <mat-icon class="icon-size-5">more_vert</mat-icon>
-                                        </button>
-                                        <mat-menu #transactionsMenu="matMenu">
-                                            <button mat-menu-item>Ver todas</button>
-                                            <button mat-menu-item>Filtrar</button>
-                                        </mat-menu>
-                                    </div>
-                                </div>
-                                <div class="flex flex-col mt-2">
-                                    <ul>
-                                        <li *ngFor="let transfer of user.sent_transfers">
-                                            <div class="flex justify-between text-lg text-red-600 mb-2">
-                                                <span>{{ transfer.date | date:'shortDate' }}</span>
-                                                <span>-{{ transfer.amount | currency }}</span>
+                            <div class="flex flex-col w-full p-6 sm:p-8 bg-white shadow-2xl rounded-3xl overflow-hidden border border-teal-300">
+                                <div class="text-lg sm:text-xl font-medium tracking-tight leading-6 text-teal-900 mb-6">Tus Números de Cuenta</div>
+                                <div class="flex flex-col space-y-6">
+                                    <!-- Card for each account number -->
+                                    <div *ngFor="let account of user.account_numbers" class="flex flex-col sm:flex-row items-center p-4 sm:p-6 bg-teal-50 shadow-md rounded-lg border border-teal-200 transition-transform transform hover:scale-105">
+                                        <div class="flex-grow">
+                                            <div class="text-base sm:text-lg font-semibold text-teal-800 mb-2">{{ account.number }}</div>
+                                            <div class="text-sm text-gray-600 mb-2">{{ account.type }}</div>
+                                            <div class="flex flex-col sm:flex-row justify-between">
+                                                <div class="text-base sm:text-lg font-medium text-teal-700">{{ account.balance | currency }}</div>
+                                                <div class="text-sm text-gray-600 mt-2 sm:mt-0">Saldo por efectivizar: {{ account.pending_balance | currency }}</div>
                                             </div>
-                                            <div class="text-sm text-gray-500">{{ transfer.description }}</div>
-                                        </li>
-                                        <li *ngFor="let transfer of user.received_transfers">
-                                            <div class="flex justify-between text-lg text-green-600 mb-2">
-                                                <span>{{ transfer.date | date:'shortDate' }}</span>
-                                                <span>+{{ transfer.amount | currency }}</span>
-                                            </div>
-                                            <div class="text-sm text-gray-500">{{ transfer.description }}</div>
-                                        </li>
-                                    </ul>
+                                        </div>
+                                        <div class="mt-4 sm:mt-0 flex items-center">
+                                            <button mat-icon-button color="primary" class="text-teal-600 hover:text-teal-800 transition duration-300" (click)="viewAccountDetails(account.number)">
+                                                <mat-icon>info</mat-icon>
+                                            </button>
+                                            <button mat-icon-button color="primary" class="ml-2 text-teal-600 hover:text-teal-800 transition duration-300" (click)="shareAccountDetails(account.number)">
+                                                <mat-icon>share</mat-icon>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
