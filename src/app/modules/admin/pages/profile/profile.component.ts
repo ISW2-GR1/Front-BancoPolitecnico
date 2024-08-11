@@ -22,6 +22,7 @@ import { FuseCardComponent } from '@fuse/components/card';
 import { BankAccountService } from 'app/services/bank-account.service';
 import { FormsModule } from '@angular/forms';
 import { FuseAlertComponent } from '@fuse/components/alert';
+
 @Component({
     selector: 'profile',
     templateUrl: './profile.component.html',
@@ -136,6 +137,7 @@ export class ProfileComponent {
             }
         );
     }
+
     verifyCode(): void {
         if (!this.verificationCode.trim()) {
             this.showAlertMessage(
@@ -157,6 +159,7 @@ export class ProfileComponent {
                     this.cedulaNumber = '';
                     this.verificationCode = '';
                     this.verificationSent = false;
+                    this.loadBankAccounts(); // Actualizar la lista de cuentas
                 } else {
                     this.showAlertMessage(
                         'Error al crear la cuenta. Verifique el código de verificación.',
@@ -181,6 +184,7 @@ export class ProfileComponent {
             panelClass: 'custom-dialog',
         });
     }
+
     confirmDelete(): void {
         // Implement your delete logic here
         this.showAlertMessage(
@@ -217,5 +221,4 @@ export class ProfileComponent {
             }
         );
     }    
-    
 }
