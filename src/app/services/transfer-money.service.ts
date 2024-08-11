@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { environment } from 'environments/environment';
 import { AuthService } from 'app/core/auth/auth.service';
-import { Observable } from 'rxjs';
+import { map, Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -42,4 +42,22 @@ export class TransferMoneyService {
 
     return this._httpClient.post<any>(`${this.baseUrl}confirm-transfer/`, data, { headers });
   }  
+
+   //Resumen de transferencias enviadas y recibidas transfer-summary/
+   transferSummary(): Observable<any> {
+    const token = this._authService.accessToken;
+    if (!token) {
+        throw new Error('Access token is not available');
+    }
+
+    const headers = new HttpHeaders({
+        'Authorization': `Bearer ${token}`
+    });
+
+    return this._httpClient.get<any>(`${this.baseUrl}transfer-summary/`, { headers })
+        .pipe(
+            map(transactions => transactions.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()))
+        );
+}
+
 }

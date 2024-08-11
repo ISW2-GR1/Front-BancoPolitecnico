@@ -28,6 +28,8 @@
         "apexcharts": "3.44.0",
         "crypto-js": "3.3.0",
         "highlight.js": "11.9.0",
+        "html2canvas": "^1.4.1",
+        "jspdf": "^2.5.1",
         "lodash-es": "4.17.21",
         "luxon": "3.4.4",
         "ng-apexcharts": "1.8.0",

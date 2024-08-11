@@ -1,154 +1,85 @@
-<div class="relative flex flex-col flex-auto min-w-0 overflow-hidden bg-gray-100">
-
-    <!-- Main Container -->
-    <div class="flex flex-col flex-auto px-8 py-12 sm:px-16 sm:py-16">
-
-        <!-- Title and Description -->
-        <div class="flex flex-col mb-8">
-            <!-- Title Section -->
-            <div class="mb-6">
-                <h1 class="text-3xl sm:text-4xl font-semibold text-gray-900 leading-tight">Resumen de Transacciones</h1>
-            </div>
-            <!-- Description -->
-            <p class="text-base sm:text-lg text-gray-600 mb-8">Visualiza y filtra todas tus transacciones enviadas y
-                recibidas de manera eficiente.</p>
+<div class="flex flex-col flex-auto min-w-0">
+    <div class="flex flex-col flex-auto px-6 sm:px-12 py-8 sm:py-16">
+        <!-- Header Section -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold text-teal-800 leading-tight">Resumen de Transacciones</h1>
+            <p class="text-lg text-gray-700 mt-4">Visualiza y filtra todas tus transacciones enviadas y recibidas de manera eficiente.</p>
         </div>
 
-        <!-- Filters and Actions -->
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0 mb-8">
-            <!-- Date Filters -->
-            <div class="flex flex-col sm:flex-row sm:space-x-4 space-y-4 sm:space-y-0 flex-1">
-                <!-- Start Date -->
-                <mat-form-field appearance="fill" class="w-full sm:w-72">
-                    <mat-label>Desde</mat-label>
-                    <input matInput [matDatepicker]="datePickerStart" placeholder="Fecha inicio"
-                        formControlName="startDate">
-                    <mat-datepicker-toggle matSuffix [for]="datePickerStart"></mat-datepicker-toggle>
-                    <mat-datepicker #datePickerStart></mat-datepicker>
-                </mat-form-field>
-                <!-- End Date -->
-                <mat-form-field appearance="fill" class="w-full sm:w-72">
-                    <mat-label>Hasta</mat-label>
-                    <input matInput [matDatepicker]="datePickerEnd" placeholder="Fecha fin" formControlName="endDate">
-                    <mat-datepicker-toggle matSuffix [for]="datePickerEnd"></mat-datepicker-toggle>
-                    <mat-datepicker #datePickerEnd></mat-datepicker>
-                </mat-form-field>
-                <!-- Filter Button -->
-                <div class="flex items-center sm:ml-4">
-                    <button (click)="applyFilters()"
-                        class="py-2 px-4 sm:px-6 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300 flex items-center justify-center">
-                        <mat-icon svgIcon="heroicons_outline:filter" class="text-lg mr-2"></mat-icon>
-                        <span class="font-medium">Filtrar</span>
-                    </button>
+        <!-- Filter Form Section -->
+        <div class="mb-10 p-8 bg-white rounded-lg shadow-lg border border-gray-200">
+            <form [formGroup]="filterForm" (ngSubmit)="applyFilter()">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Desde</mat-label>
+                        <input matInput [matDatepicker]="fromPicker" formControlName="fromDate" placeholder="Selecciona una fecha">
+                        <mat-datepicker-toggle matSuffix [for]="fromPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #fromPicker></mat-datepicker>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="fill" class="w-full">
+                        <mat-label>Hasta</mat-label>
+                        <input matInput [matDatepicker]="toPicker" formControlName="toDate" placeholder="Selecciona una fecha">
+                        <mat-datepicker-toggle matSuffix [for]="toPicker"></mat-datepicker-toggle>
+                        <mat-datepicker #toPicker></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <button
+                class="bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-teal-700 transition duration-300" type="submit">
+                Aplicar Filtro
+            </button>
+            </form>
+        </div>
+
+        <!-- Transactions Section -->
+        <div id="transactionsTable" class="w-full max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-8 border border-gray-300 mb-12">
+            <div *ngIf="filteredTransactions.length === 0" class="text-center text-gray-600 text-lg mb-8">
+                <p>No hay transacciones disponibles.</p>
+            </div>
+            <div *ngFor="let transaction of filteredTransactions" class="border-l-4"
+                [ngClass]="{
+                    'border-red-600': transaction.type === 'sent',
+                    'border-green-600': transaction.type === 'received'
+                }">
+                <div class="bg-gray-50 p-6 rounded-lg mb-6 shadow-md">
+                    <div class="flex items-center justify-between mb-4">
+                        <p class="text-lg font-semibold flex items-center" [ngClass]="{
+                            'text-red-600': transaction.type === 'sent',
+                            'text-green-600': transaction.type === 'received'
+                        }">
+                            <mat-icon [ngClass]="{
+                                'text-red-600': transaction.type === 'sent',
+                                'text-green-600': transaction.type === 'received'
+                            }">{{ transaction.type === 'sent' ? 'arrow_downward' : 'arrow_upward' }}</mat-icon>
+                            <span class="ml-2">{{transaction.type === 'sent' ? 'Enviado' : 'Recibido'}}</span>
+                        </p>
+                        <p class="text-sm text-gray-500">{{transaction.timestamp | date:'short'}}</p>
+                    </div>
+                    <p class="text-gray-800 mb-2 text-base font-medium">Monto: {{transaction.amount | currency}}</p>
+                    <p class="text-gray-800 mb-2">Receptor: {{transaction.receiver}}</p>
+                    <p class="text-gray-800 mb-2" *ngIf="transaction.sender">Emisor: {{transaction.sender}}</p>
+                    <p class="text-gray-800 mb-2">Número de Cuenta del Receptor: {{transaction.receiver_account_number}}</p>
                 </div>
             </div>
         </div>
 
-        <!-- Transactions Feed -->
-        <div class="w-full max-w-5xl mx-auto bg-white rounded-lg shadow-lg p-6 border border-gray-200 mb-8">
-
-            <!-- Transactions List -->
-            <ng-container *ngIf="(transactions$ | async) as transactions; else loading">
-                <ng-container *ngIf="transactions.length; else noTransactions">
-                    <ol class="space-y-6">
-                        <!-- Transaction Items -->
-                        <ng-container
-                            *ngFor="let transaction of transactions; let i = index; let first = first; let last = last; trackBy: trackByFn">
-                            <!-- Date Separator -->
-                            <ng-container *ngIf="first || !isSameDay(transaction.date, transactions[i - 1].date)">
-                                <li class="relative flex items-center">
-                                    <div class="absolute inset-0 flex items-center justify-center">
-                                        <div class="w-1 h-full bg-gray-300"></div>
-                                    </div>
-                                    <div class="relative bg-blue-500 text-white py-2 px-4 rounded-full shadow-lg">
-                                        {{getRelativeFormat(transaction.date) | titlecase}}
-                                    </div>
-                                </li>
-                            </ng-container>
-
-                            <!-- Transaction Detail -->
-                            <li class="flex items-start space-x-4 py-4 border-b border-gray-200">
-                                <!-- Icon or Image -->
-                                <ng-container *ngIf="transaction.icon && !transaction.image">
-                                    <div
-                                        class="w-12 h-12 flex items-center justify-center bg-gray-200 rounded-full shadow-md">
-                                        <mat-icon class="text-gray-700" [svgIcon]="transaction.icon"></mat-icon>
-                                    </div>
-                                </ng-container>
-                                <ng-container *ngIf="transaction.image">
-                                    <img class="w-12 h-12 rounded-full object-cover border-2 border-gray-300"
-                                        [src]="transaction.image" [alt]="'Transaction image'">
-                                </ng-container>
-
-                                <!-- Content -->
-                                <div class="flex-1">
-                                    <!-- Description -->
-                                    <ng-container *ngIf="transaction.description">
-                                        <p class="text-gray-800 mb-2" [innerHTML]="transaction.description"></p>
-                                    </ng-container>
-                                    <div class="flex items-center space-x-2 text-sm text-gray-600">
-                                        <!-- Date -->
-                                        <div>
-                                            {{transaction.date | date:'MMM dd, yyyy h:mm a'}}
-                                        </div>
-                                        <!-- Linked Content -->
-                                        <ng-container *ngIf="transaction.linkedContent">
-                                            <div class="text-gray-500">&bull;</div>
-                                            <ng-container *ngIf="transaction.useRouter">
-                                                <a class="text-blue-600 hover:underline"
-                                                    [routerLink]="transaction.link">
-                                                    {{transaction.linkedContent}}
-                                                </a>
-                                            </ng-container>
-                                            <ng-container *ngIf="!transaction.useRouter">
-                                                <a class="text-blue-600 hover:underline" [href]="transaction.link"
-                                                    target="_blank">
-                                                    {{transaction.linkedContent}}
-                                                </a>
-                                            </ng-container>
-                                        </ng-container>
-                                    </div>
-                                    <!-- Extra Content -->
-                                    <ng-container *ngIf="transaction.extraContent">
-                                        <div class="mt-4 p-4 bg-gray-100 rounded-lg shadow-sm"
-                                            [innerHTML]="transaction.extraContent"></div>
-                                    </ng-container>
-                                </div>
-                            </li>
-                        </ng-container>
-                    </ol>
-                </ng-container>
-            </ng-container>
-
-            <!-- Loading State -->
-            <ng-template #loading>
-                <div class="text-center text-gray-600">Cargando...</div>
-            </ng-template>
-
-            <!-- No Transactions State -->
-            <ng-template #noTransactions>
-                <div class="text-center text-gray-600">No hay transacciones en este momento.</div>
-            </ng-template>
-
+        <!-- PDF Button -->
+        <div class="flex justify-end mb-12">
+            <button (click)="generatePDF()"
+            class="bg-teal-600 text-white px-6 py-3 rounded-lg shadow-lg hover:bg-teal-700 transition duration-300" type="submit">
+            Generar PDF
+        </button>
         </div>
 
         <!-- Bank Publication Section -->
-        <div class="w-full max-w-5xl mx-auto bg-blue-50 rounded-lg shadow-lg p-6 border border-blue-200">
-            <h2 class="text-2xl font-semibold text-blue-800 mb-4">Publicación del Banco Politécnico</h2>
-            <p class="text-gray-700 mb-4">
-                Nos complace anunciar que hemos lanzado nuevas funcionalidades en nuestra plataforma para ofrecerte una
-                mejor experiencia bancaria.
-                Mantente atento a nuestras actualizaciones y aprovecha los nuevos servicios que hemos implementado para
-                tu comodidad.
-            </p>
+        <div class="w-full max-w-4xl mx-auto bg-blue-50 rounded-xl shadow-lg p-8 border border-blue-200">
+            <h2 class="text-3xl font-bold text-blue-800 mb-4">Publicación del Banco Politécnico</h2>
+            <p class="text-gray-700 mb-6 text-lg">Nos complace anunciar que hemos lanzado nuevas funcionalidades en nuestra plataforma para ofrecerte una mejor experiencia bancaria. Mantente atento a nuestras actualizaciones y aprovecha los nuevos servicios que hemos implementado para tu comodidad.</p>
             <div class="flex justify-end">
-                <a href="#"
-                    class="py-2 px-4 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition duration-300">
+                <a href="#" class="py-3 px-6 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 transition duration-300 text-lg">
                     Más Información
                 </a>
             </div>
         </div>
-
     </div>
-
 </div>

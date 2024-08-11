@@ -1,5 +1,6 @@
 import {
     AsyncPipe,
+    CurrencyPipe,
     DatePipe,
     NgFor,
     NgIf,
@@ -10,6 +11,7 @@ import {
     Component,
     OnInit,
     ViewEncapsulation,
+    ChangeDetectorRef
 } from '@angular/core';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -17,9 +19,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { RouterLink } from '@angular/router';
-import { TranslocoTranspilerFunction } from '@ngneat/transloco';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
 import { DateTime } from 'luxon';
+import { TransferMoneyService } from 'app/services/transfer-money.service';
+import { take } from 'rxjs/operators';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { jsPDF } from 'jspdf';
+import html2canvas from 'html2canvas';
 
 @Component({
     selector: 'activity',
@@ -38,49 +44,80 @@ import { DateTime } from 'luxon';
         RouterLink,
         AsyncPipe,
         TitleCasePipe,
-        DatePipe
+        DatePipe,
+        CurrencyPipe,
+        ReactiveFormsModule
     ],
 })
 export class ActivitiesComponent implements OnInit {
+    public transactions: any[] = [];
+    public filteredTransactions: any[] = [];
+    filterForm: FormGroup;
 
-    transactions$: Observable<any[]>; // Cambia el tipo a un array de objetos genéricos
+    constructor(
+        private _transferMoneyService: TransferMoneyService,
+        private fb: FormBuilder,
+        private cdr: ChangeDetectorRef
+    ) {
+        this.filterForm = this.fb.group({
+            fromDate: [null],
+            toDate: [null],
+        });
+    }
 
-    /**
-     * Constructor
-     */
-    constructor() {}
-
-    /**
-     * On init
-     */
     ngOnInit(): void {
-        // Datos de ejemplo
-        const transactions = [
-            { date: '2024-08-01', description: 'Transferencia Recibida', amount: 150.00, type: 'Ingreso' },
-            { date: '2024-08-03', description: 'Pago de Servicios', amount: -50.00, type: 'Egreso' },
-            { date: '2024-08-04', description: 'Compra en Supermercado', amount: -75.00, type: 'Egreso' },
-            { date: '2024-08-05', description: 'Transferencia Enviada', amount: -200.00, type: 'Egreso' }
-        ];
-
-        this.transactions$ = of(transactions);
+        this.getTransactions();
     }
 
-    generatePdf() {
-        // Implementa la lógica para generar un PDF
-        console.log('Generating PDF...');
+    getTransactions(): void {
+        this._transferMoneyService.transferSummary()
+            .subscribe((transactions: any) => {
+                this.transactions = transactions;
+                this.filteredTransactions = transactions; // Mostrar todas las transacciones inicialmente
+                this.cdr.detectChanges();
+            });
     }
 
-    getRelativeFormat(date: string): string {
-        return DateTime.fromISO(date).toRelative(); 
+    applyFilter(): void {
+        const { fromDate, toDate } = this.filterForm.value;
+        if (fromDate || toDate) {
+            this.filteredTransactions = this.transactions.filter(transaction => {
+                const transactionDate = new Date(transaction.timestamp);
+                return (!fromDate || transactionDate >= fromDate) &&
+                       (!toDate || transactionDate <= toDate);
+            });
+        } else {
+            this.filteredTransactions = this.transactions; // Si no hay filtro, mostrar todas
+        }
+        this.cdr.detectChanges();
     }
 
-    isSameDay(date1: string, date2: string): boolean {
-        const dt1 = DateTime.fromISO(date1);
-        const dt2 = DateTime.fromISO(date2);
-        return dt1.hasSame(dt2, 'day');
-    }
-    applyFilters() {
-        // Implementa la lógica para aplicar filtros
-        console.log('Applying filters...');
+    generatePDF(): void {
+        const doc = new jsPDF();
+
+        const table = document.getElementById('transactionsTable');
+        if (table) {
+            html2canvas(table).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const imgWidth = 210;
+                const pageHeight = 295;
+                const imgHeight = canvas.height * imgWidth / canvas.width;
+                let heightLeft = imgHeight;
+
+                let position = 0;
+
+                doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                heightLeft -= pageHeight;
+
+                while (heightLeft >= 0) {
+                    position = heightLeft - imgHeight;
+                    doc.addPage();
+                    doc.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+                    heightLeft -= pageHeight;
+                }
+
+                doc.save('Resumen_Transacciones.pdf');
+            });
+        }
     }
 }
