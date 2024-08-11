@@ -43,6 +43,9 @@
                         <mat-label class="text-gray-700">Cédula</mat-label>
                         <input matInput formControlName="cedula" required />
                         <mat-icon matPrefix>insert_drive_file</mat-icon>
+                        <mat-error *ngIf="signUpForm.get('cedula').hasError('required')">
+                            Cedúla es obligatoria
+                        </mat-error>
                         <mat-error *ngIf="signUpForm.get('cedula').hasError('backend')">
                             {{ backendErrors['cedula'] ? backendErrors['cedula'][0] : 'Cédula no válida.' }}
                         </mat-error>
@@ -62,6 +65,9 @@
                         <mat-form-field class="w-full">
                             <mat-label>Nombre</mat-label>
                             <input matInput formControlName="name" required />
+                            <mat-error *ngIf="signUpForm.get('name').hasError('required')">
+                                Nombre es obligatorio
+                            </mat-error>
                             <mat-error *ngIf="signUpForm.get('name').hasError('backend')">
                                 {{ backendErrors['name'] ? backendErrors['name'][0] : 'Nombre no válido.' }}
                             </mat-error>
@@ -71,6 +77,9 @@
                         <mat-form-field class="w-full">
                             <mat-label>Apellido</mat-label>
                             <input matInput formControlName="last_name" required />
+                            <mat-error *ngIf="signUpForm.get('last_name').hasError('required')">
+                                Apellido es obligatorio
+                            </mat-error>
                             <mat-error *ngIf="signUpForm.get('last_name').hasError('backend')">
                                 {{ backendErrors['last_name'] ? backendErrors['last_name'][0] : 'Apellido no válido.' }}
                             </mat-error>
@@ -82,6 +91,9 @@
                     <mat-form-field class="w-full">
                         <mat-label>Nombre de Usuario</mat-label>
                         <input matInput formControlName="username" required />
+                        <mat-error *ngIf="signUpForm.get('username').hasError('required')">
+                            Nombre de usuario es obligatorio
+                        </mat-error>
                         <mat-error *ngIf="signUpForm.get('username').hasError('backend')">
                             {{ backendErrors['username'] ? backendErrors['username'][0] : 'Nombre de usuario no válido.'
                             }}
@@ -92,6 +104,9 @@
                     <mat-form-field class="w-full">
                         <mat-label>Correo Electrónico</mat-label>
                         <input matInput formControlName="email" required />
+                        <mat-error *ngIf="signUpForm.get('email').hasError('required')">
+                            Correo electrónico es obligatorio
+                        </mat-error>
                         <mat-error *ngIf="signUpForm.get('email').hasError('backend')">
                             {{ backendErrors['email'] ? backendErrors['email'][0] : 'Correo electrónico no válido.' }}
                         </mat-error>
@@ -130,6 +145,9 @@
                         <mat-error *ngIf="signUpForm.get('phone').hasError('backend')">
                             {{ backendErrors['phone'] ? backendErrors['phone'][0] : 'Teléfono no válido.' }}
                         </mat-error>
+                        <mat-error *ngIf="signUpForm.get('phone').hasError('required')">
+                            Teléfono es obligatorio 09XXXXXXXX
+                        </mat-error>
                     </mat-form-field>
 
                     <!-- Dirección -->
@@ -138,6 +156,9 @@
                         <input matInput formControlName="address" required />
                         <mat-error *ngIf="signUpForm.get('address').hasError('backend')">
                             {{ backendErrors['address'] ? backendErrors['address'][0] : 'Dirección no válida.' }}
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('address').hasError('required')">
+                            Dirección es obligatoria
                         </mat-error>
                     </mat-form-field>
 
@@ -148,14 +169,20 @@
                         <mat-error *ngIf="signUpForm.get('city').hasError('backend')">
                             {{ backendErrors['city'] ? backendErrors['city'][0] : 'Ciudad no válida.' }}
                         </mat-error>
+                        <mat-error *ngIf="signUpForm.get('city').hasError('required')">
+                            Ciudad es obligatoria
+                        </mat-error>
                     </mat-form-field>
 
                     <!-- País -->
                     <mat-form-field class="w-full">
-                        <mat-label>País</mat-label>
+                        <mat-label>Provincia</mat-label>
                         <input matInput formControlName="country" required />
                         <mat-error *ngIf="signUpForm.get('country').hasError('backend')">
                             {{ backendErrors['country'] ? backendErrors['country'][0] : 'País no válido.' }}
+                        </mat-error>
+                        <mat-error *ngIf="signUpForm.get('country').hasError('required')">
+                            Provincia es obligatoria
                         </mat-error>
                     </mat-form-field>
 

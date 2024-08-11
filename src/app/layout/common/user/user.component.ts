@@ -8,7 +8,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { Router } from '@angular/router';
 import { UserService } from 'app/core/user/user.service';
 import { Subject, takeUntil } from 'rxjs';
-
+import { User } from 'app/core/user/user.types';
 @Component({
     selector       : 'user',
     templateUrl    : './user.component.html',
@@ -27,7 +27,30 @@ export class UserComponent implements OnInit, OnDestroy
     @Input() showAvatar: boolean = true;
 
     private _unsubscribeAll: Subject<any> = new Subject<any>();
-
+    user: User = { 
+        name: '',
+        last_name: '',
+        username: '',
+        email: '',
+        cedula: '',
+        phone: '',
+        address: '',
+        city: '',
+        country: '',
+        birthday: null,
+        role: '',
+        avatar: '',
+        balance: 0,
+        transactions: 0,
+        contacts: [],
+        sent_transfers: [],
+        received_transfers: [],
+        available_balance: 0,
+        account_numbers: [],
+        joinDate: new Date()
+    };
+    avatar: string = 'https://img1.pnghut.com/12/24/21/aPnT6zYdni/user-profile-black-facebook-linkedin-symbol.jpg';
+    isBalanceVisible: boolean = true;
     /**
      * Constructor
      */
