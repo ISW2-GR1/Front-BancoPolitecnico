@@ -1,6 +1,6 @@
-import { NgIf } from '@angular/common';
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { NgIf, CommonModule } from '@angular/common';
+import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef, ViewChild, TemplateRef } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -10,8 +10,12 @@ import { fuseAnimations } from '@fuse/animations';
 import { FuseAlertComponent } from '@fuse/components/alert';
 import { UserService } from 'app/core/user/user.service';
 import { TransferMoneyService } from 'app/services/transfer-money.service';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { User } from 'app/core/user/user.types';
 import { MatIconModule } from '@angular/material/icon';
+import { Subscription } from 'rxjs';
+import { Router } from '@angular/router';
+
 // import { AddContactDialogComponent } from './add-contact-dialog/add-contact-dialog.component'; // Ajusta la ruta según tu estructura
 
 @Component({
@@ -21,22 +25,60 @@ import { MatIconModule } from '@angular/material/icon';
     animations: fuseAnimations,
     standalone: true,
     imports: [
-        NgIf, 
-        FuseAlertComponent, 
-        ReactiveFormsModule, 
-        MatFormFieldModule, 
-        MatInputModule, 
-        MatSelectModule, 
-        MatButtonModule, 
+        ReactiveFormsModule,
+        NgIf,
+        CommonModule,
+        FuseAlertComponent,
+        FormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        MatSelectModule,
+        MatButtonModule,
         MatProgressSpinnerModule,
         MatIconModule
+
     ],
 })
 export class ComingSoonClassicComponent implements OnInit {
+    @ViewChild('otpModal') otpModal: TemplateRef<any>;
+    dialogRef: MatDialogRef<any>;
+    user: User = {
+        name: '',
+        last_name: '',
+        username: '',
+        email: '',
+        cedula: '',
+        phone: '',
+        address: '',
+        city: '',
+        country: '',
+        birthday: null,
+        role: '',
+        avatar: '',
+        balance: 0,
+        transactions: 0,
+        contacts: [],
+        sent_transfers: [],
+        received_transfers: [],
+        available_balance: 0,
+        account_numbers: []
+    };
+    private _userSubscription: Subscription;
+    defaultAvatar: string = 'https://img1.pnghut.com/12/24/21/aPnT6zYdni/user-profile-black-facebook-linkedin-symbol.jpg';
+    isBalanceVisible: boolean = true;
+    otpCode: string = '';
+
     transferForm: FormGroup;
     userAccountNumbers: string[] = [];
+    contactList: any[] = [
+        { name: 'Juan Pérez', account_number: '2109771483' },
+        { name: 'Ana Gómez', account_number: '9833903365' },
+        { name: 'Luis Martínez', account_number: '6639593467' }
+    ];
+
     showAlert = false;
     alert: { type: string, message: string } = { type: '', message: '' };
+
 
     /**
      * Constructor
@@ -45,58 +87,89 @@ export class ComingSoonClassicComponent implements OnInit {
         private fb: FormBuilder,
         private transferService: TransferMoneyService,
         private userService: UserService,
-        public dialog: MatDialog
-    ) {}
+        public dialog: MatDialog,
+        private _userService: UserService,
+        private cdr: ChangeDetectorRef,
+        private router: Router
+    ) { }
 
     /**
      * On init
      */
     ngOnInit(): void {
+        this._userSubscription = this._userService.get().subscribe((user: User) => {
+            console.log("DataUser", user);
+            this.user = user;
+            this.userAccountNumbers = user.account_numbers;
+            console.log("userAccountNumbers", this.userAccountNumbers);
+            console.log("contactList", this.contactList);
+            this.cdr.detectChanges();
+        });
+
         this.transferForm = this.fb.group({
             senderAccount: [null, Validators.required],
             receiverAccount: [null, Validators.required],
             amount: [null, [Validators.required, Validators.min(0)]],
-            otp: [null, Validators.required]
-        });
-
-        this.userService.get().subscribe(user => {
-            this.userAccountNumbers = user.account_numbers;
+            otp: [null]
         });
     }
 
     submitTransfer(): void {
         if (this.transferForm.valid) {
-            const { senderAccount, receiverAccount, amount, otp } = this.transferForm.value;
+            const { senderAccount, receiverAccount, amount } = this.transferForm.value;
+
             this.transferService.createTransfer({ sender_account: senderAccount, receiver_account: receiverAccount, amount }).subscribe(
                 response => {
-                    this.transferService.confirmTransfer({ otp }).subscribe(
-                        confirmResponse => {
-                            this.alert = { type: 'success', message: 'Transferencia realizada con éxito' };
-                            this.showAlert = true;
-                        },
-                        error => {
-                            this.alert = { type: 'error', message: 'Error al confirmar la transferencia' };
-                            this.showAlert = true;
-                        }
-                    );
+                    this.openOtpModal();
                 },
                 error => {
-                    this.alert = { type: 'error', message: 'Error al realizar la transferencia' };
+                    this.alert = { type: 'error', message: 'Error al realizar la transferencia inicial' };
                     this.showAlert = true;
                 }
             );
         }
     }
 
-    openAddContactDialog(): void {
-        // const dialogRef = this.dialog.open(AddContactDialogComponent, {
-        //     width: '400px',
-        //     data: {} // Pasa los datos necesarios al diálogo
-        // });
+    openOtpModal(): void {
+        this.dialogRef = this.dialog.open(this.otpModal);
 
-        // dialogRef.afterClosed().subscribe(result => {
-        //     console.log('El diálogo se cerró');
-        //     // Manejar el resultado después de que el diálogo se cierre
-        // });
+        this.dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+                this.confirmTransfer();
+            }
+        });
     }
+
+
+    confirmTransfer(): void {
+        if (this.otpCode.trim()) {
+            this.transferService.confirmTransfer({ otp: this.otpCode }).subscribe(
+                confirmResponse => {
+                    this.dialogRef.close(); 
+                    this.alert = { type: 'success', message: 'Transferencia realizada con éxito' };
+                    this.showAlert = true;
+                    this.transferForm.reset();
+                    this.otpCode = '';
+                    Object.keys(this.transferForm.controls).forEach(key => {
+                        this.transferForm.controls[key].setErrors(null);
+                        this.transferForm.controls[key].markAsPristine();
+                        this.transferForm.controls[key].markAsUntouched();
+                    });
+                },
+                error => {
+                    this.dialogRef.close();
+                    this.otpCode = '';
+                    this.transferForm.reset();
+                    this.alert = { type: 'error', message: 'Error al confirmar la transferencia' };
+                    this.showAlert = true;
+                    this.cdr.detectChanges(); 
+                }
+            );
+        } else {
+            this.alert = { type: 'error', message: 'Debe ingresar un código OTP válido' };
+            this.showAlert = true;
+            this.cdr.detectChanges(); 
+        }
+    }
+    
 }
