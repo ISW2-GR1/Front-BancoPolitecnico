@@ -41,6 +41,7 @@ import { Router } from '@angular/router';
 })
 export class ComingSoonClassicComponent implements OnInit {
     @ViewChild('otpModal') otpModal: TemplateRef<any>;
+    @ViewChild('addContactModal') addContactModal: TemplateRef<any>;
     dialogRef: MatDialogRef<any>;
     user: User = {
         name: '',
@@ -67,17 +68,16 @@ export class ComingSoonClassicComponent implements OnInit {
     defaultAvatar: string = 'https://img1.pnghut.com/12/24/21/aPnT6zYdni/user-profile-black-facebook-linkedin-symbol.jpg';
     isBalanceVisible: boolean = true;
     otpCode: string = '';
+    searchResults: any[] = [];
 
     transferForm: FormGroup;
+    contactForm: FormGroup;
     userAccountNumbers: string[] = [];
-    contactList: any[] = [
-        { name: 'Juan Pérez', account_number: '2109771483' },
-        { name: 'Ana Gómez', account_number: '9833903365' },
-        { name: 'Luis Martínez', account_number: '6639593467' }
-    ];
+    contactList: any[] = [];
 
     showAlert = false;
     alert: { type: string, message: string } = { type: '', message: '' };
+
 
 
     /**
@@ -101,8 +101,8 @@ export class ComingSoonClassicComponent implements OnInit {
             console.log("DataUser", user);
             this.user = user;
             this.userAccountNumbers = user.account_numbers;
-            console.log("userAccountNumbers", this.userAccountNumbers);
-            console.log("contactList", this.contactList);
+            this.contactList = user.contacts;
+            console.log('Updated Contact List:', this.contactList);
             this.cdr.detectChanges();
         });
 
@@ -111,6 +111,11 @@ export class ComingSoonClassicComponent implements OnInit {
             receiverAccount: [null, Validators.required],
             amount: [null, [Validators.required, Validators.min(0)]],
             otp: [null]
+        });
+
+        this.contactForm = this.fb.group({
+            account_number: ['', Validators.required],
+            cedula: ['', Validators.required]
         });
     }
 
@@ -132,6 +137,7 @@ export class ComingSoonClassicComponent implements OnInit {
 
     openOtpModal(): void {
         this.dialogRef = this.dialog.open(this.otpModal);
+        this.showAlert = false;
 
         this.dialogRef.afterClosed().subscribe(result => {
             if (result) {
@@ -145,7 +151,7 @@ export class ComingSoonClassicComponent implements OnInit {
         if (this.otpCode.trim()) {
             this.transferService.confirmTransfer({ otp: this.otpCode }).subscribe(
                 confirmResponse => {
-                    this.dialogRef.close(); 
+                    this.dialogRef.close();
                     this.alert = { type: 'success', message: 'Transferencia realizada con éxito' };
                     this.showAlert = true;
                     this.transferForm.reset();
@@ -162,14 +168,92 @@ export class ComingSoonClassicComponent implements OnInit {
                     this.transferForm.reset();
                     this.alert = { type: 'error', message: 'Error al confirmar la transferencia' };
                     this.showAlert = true;
-                    this.cdr.detectChanges(); 
+                    this.cdr.detectChanges();
                 }
             );
         } else {
             this.alert = { type: 'error', message: 'Debe ingresar un código OTP válido' };
             this.showAlert = true;
-            this.cdr.detectChanges(); 
+            this.cdr.detectChanges();
         }
     }
-    
+
+    openAddContactDialog(): void {
+        this.dialogRef = this.dialog.open(this.addContactModal, {
+            width: '400px'
+        });
+
+
+        this.dialogRef.afterClosed().subscribe(result => {
+            console.log('Modal cerrado con resultado:', result);
+            if (result) {
+                console.log('Contacto seleccionado:', result);
+
+            }
+        });
+        this.resetContactForm();
+    }
+
+
+    searchContact(): void {
+        if (this.contactForm.valid) {
+            this.transferService.searchContact(this.contactForm.value).subscribe(
+                results => {
+                    this.searchResults = results;
+                    this.showAlert = false;
+                },
+                error => {
+                    this.showAlert = true;
+                    this.alert = { type: 'error', message: 'No se ha encontrado ningún contacto con ese número de cuenta o cédula' };
+                }
+            );
+        }
+    }
+
+    cancelSearch(): void {
+        this.dialogRef.close();
+        this.showAlert = false;
+        this.resetContactForm();
+    }
+
+    resetContactForm(): void {
+        this.contactForm.reset();
+        this.searchResults = [];
+        Object.keys(this.contactForm.controls).forEach(key => {
+            this.contactForm.controls[key].setErrors(null);
+            this.contactForm.controls[key].markAsPristine();
+            this.contactForm.controls[key].markAsUntouched();
+        });
+    }
+
+    selectContact(contact: any): void {
+        const contactData = {
+            contact: contact.id,
+            contact_account_number: contact.account_number
+        };
+
+        console.log('Datos enviados:', contactData);
+
+        this.transferService.addContact(contactData).subscribe(
+            response => {
+                this._userService.get().subscribe((user: User) => {
+                    this.user = user;
+                    this.contactList = user.contacts;
+                    this.alert = { type: 'success', message: 'Contacto añadido con éxito' };
+                    this.showAlert = true;
+                    this.dialogRef.close();
+                    this.resetContactForm();
+                    console.log('Contacto añadido exitosamente y lista actualizada', user);
+                });
+            },
+            error => {
+                this.alert = { type: 'error', message: 'No se ha podido añadir al usuario' };
+                this.showAlert = true;
+                console.error('Error al añadir contacto', error);
+            }
+        );
+    }
+
+
+
 }

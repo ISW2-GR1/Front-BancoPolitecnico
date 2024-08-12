@@ -22,14 +22,14 @@
             </fuse-alert>
 
             <!-- Add New Contact -->
-            <!-- <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-8">
                 <button (click)="openAddContactDialog()"
                     class="flex items-center py-2 px-6 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300">
                     <mat-icon svgIcon="heroicons_outline:plus-circle" class="mr-2"></mat-icon>
                     Agregar Nuevo Contacto
                 </button>
                 <p class="text-gray-500 text-sm">¿No encuentras el contacto? Agrega uno aquí.</p>
-            </div> -->
+            </div>
 
             <!-- Transfer Form -->
             <form [formGroup]="transferForm" (ngSubmit)="submitTransfer()">
@@ -47,11 +47,11 @@
                 </mat-form-field>
 
                 <!-- Receiver Account -->
-                <mat-form-field class="w-full mb-6">
+                <mat-form-field class="w-full mb-6" *ngIf="contactList.length > 0">
                     <mat-label class="text-lg font-medium text-gray-800">Cuenta de Destino</mat-label>
                     <mat-select formControlName="receiverAccount" placeholder="Seleccionar cuenta">
-                        <mat-option *ngFor="let contact of contactList" [value]="contact.account_number">
-                            {{ contact.name }} - {{ contact.account_number }}
+                        <mat-option *ngFor="let contact of contactList" [value]="contact.contact_account_number">
+                            {{ contact.contact_name }}  - {{ contact.contact_account_number }}
                         </mat-option>
                     </mat-select>
                     <mat-error *ngIf="transferForm.get('receiverAccount').hasError('required')">
@@ -105,5 +105,57 @@
             <button mat-button color="primary" (click)="confirmTransfer()">Confirmar</button>
         </mat-dialog-actions>
     </ng-template>
+
+    <!-- Modal para la Búsqueda de Contactos -->
+    <ng-template #addContactModal>
+        <h2 mat-dialog-title class="text-xl font-semibold mb-4 text-gray-800">Buscar Contacto</h2>
+        <fuse-alert class="mb-6" *ngIf="showAlert" [appearance]="'outline'" [showIcon]="true" [type]="alert.type"
+            [@shake]="alert.type === 'error'">
+            {{ alert.message }}
+        </fuse-alert>
+        <mat-dialog-content>
+            <form [formGroup]="contactForm" (ngSubmit)="searchContact(contactForm)">
+                <mat-form-field class="w-full">
+                    <mat-label>Número de Cuenta</mat-label>
+                    <input matInput formControlName="account_number" placeholder="Ingrese el número de cuenta">
+                </mat-form-field>
+
+                <mat-form-field class="w-full">
+                    <mat-label>Cédula</mat-label>
+                    <input matInput formControlName="cedula" placeholder="Ingrese la cédula">
+                </mat-form-field>
+
+                <mat-dialog-actions class="flex space-x-2">
+                    <button mat-raised-button type="submit" color="primary" class="flex-1 py-2 px-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800 transition duration-300" [disabled]="contactForm.invalid">
+                        Buscar
+                    </button>
+                    <button mat-button (click)="cancelSearch()" class="flex-1 py-2 px-4  text-red-600  transition duration-300">
+                        Cancelar
+                    </button>
+                </mat-dialog-actions>
+            </form>
+        </mat-dialog-content>
+        <div *ngIf="searchResults.length > 0" class="mt-6">
+            <h3 class="text-xl font-semibold mb-4 text-gray-800">Resultados de la búsqueda:</h3>
+            <div class="space-y-4">
+                <div *ngFor="let contact of searchResults"
+                    class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-lg font-medium text-gray-900">{{ contact.user_details.name }} {{
+                                contact.user_details.last_name }}</p>
+                            <p class="text-sm text-gray-600">Cuenta: {{ contact.account_number }}</p>
+                        </div>
+                        <button mat-button (click)="selectContact(contact)"
+                            class="ml-4 py-2 px-4 bg-green-500 text-white rounded-lg shadow-md hover:bg-green-600 transition duration-300">
+                            Añadir usuario
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ng-template>
+
+
 
 </div>
