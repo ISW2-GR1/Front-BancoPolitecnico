@@ -12,7 +12,6 @@
             
             <!-- Bank Accounts List -->
             <fuse-card class="flex flex-col w-full p-6 sm:p-8 bg-white border border-gray-200 rounded-xl shadow-lg">
-                <div class="flex flex-col mt-4">
                     <div *ngFor="let account of bankAccounts" class="mb-4 p-6 border rounded-lg shadow-md bg-white transition-transform transform hover:scale-105 hover:shadow-xl">
                         <div class="flex flex-col sm:flex-row items-center justify-between">
                             <div class="flex flex-col">
@@ -23,7 +22,6 @@
                                 <mat-icon>delete</mat-icon>
                             </button>
                         </div>
-                    </div>                    
                 </div>
             </fuse-card>
             
@@ -42,7 +40,6 @@
 
 <!-- Add Account Dialog -->
 <ng-template #addAccountDialog>
-    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
         <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Verificar Identidad</h2>
         <fuse-alert
             class="mb-4"
@@ -63,7 +60,6 @@
                 Este campo es obligatorio.
             </mat-error>
         </mat-form-field>
-    </div>
     <mat-dialog-actions class="flex justify-end space-x-2">
         <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
         <button mat-raised-button color="primary" (click)="sendVerificationCode()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Enviar Código</button>
@@ -72,8 +68,25 @@
 
 <!-- Confirm Delete Dialog -->
 <ng-template #confirmDeleteDialog>
-    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
-        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Confirmar Eliminación</h2>
+    <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Confirmar Eliminación</h2>
+    <fuse-alert
+        class="mb-4"
+        *ngIf="showAlert && alert.type === 'error'"
+        [appearance]="'outline'"
+        [showIcon]="false"
+        [type]="alert.type">
+        {{alert.message}}
+    </fuse-alert>
+    <p class="text-sm text-gray-700">¿Está seguro de que desea eliminar la cuenta {{ accountToDelete }}? Esta acción es irreversible y eliminará todos los datos asociados con esta cuenta.</p>
+    <mat-dialog-actions class="flex justify-end space-x-2">
+        <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
+        <button mat-raised-button color="warn" (click)="confirmDelete()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Eliminar</button>
+    </mat-dialog-actions>
+</ng-template>
+
+<!-- Verify Code Dialog Delete Account -->
+<ng-template #verifyDeleteCodeDialog>
+        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Verificar Código</h2>
         <fuse-alert
             class="mb-4"
             *ngIf="showAlert && alert.type === 'error'"
@@ -82,17 +95,19 @@
             [type]="alert.type">
             {{alert.message}}
         </fuse-alert>
-        <p class="text-sm text-gray-700">¿Está seguro de que desea eliminar la cuenta {{ accountToDelete }}? Esta acción es irreversible y eliminará todos los datos asociados con esta cuenta.</p>
-    </div>
+        <p class="text-sm text-gray-600 mb-4">Ingrese el código de verificación enviado a su correo electrónico para completar el proceso de verificación y eliminación de la cuenta bancaria.</p>
+        <mat-form-field appearance="fill" class="w-full">
+            <mat-label>Código de Verificación</mat-label>
+            <input matInput [(ngModel)]="verificationCodeAccount" placeholder="Ingrese el código de verificación" required>
+        </mat-form-field>
     <mat-dialog-actions class="flex justify-end space-x-2">
         <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
-        <button mat-raised-button color="warn" (click)="confirmDelete()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Eliminar</button>
+        <button mat-raised-button color="primary" (click)="verifyDeleteCode()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Verificar Código</button>
     </mat-dialog-actions>
 </ng-template>
 
 <!-- Verify Code Dialog -->
 <ng-template #verifyCodeDialog>
-    <div mat-dialog-content class="p-6 max-w-md w-full bg-white rounded-xl shadow-lg">
         <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Verificar Código</h2>
         <fuse-alert
             class="mb-4"
@@ -107,7 +122,6 @@
             <mat-label>Código de Verificación</mat-label>
             <input matInput [(ngModel)]="verificationCode" placeholder="Ingrese el código de verificación" required>
         </mat-form-field>
-    </div>
     <mat-dialog-actions class="flex justify-end space-x-2">
         <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
         <button mat-raised-button color="primary" (click)="verifyCode()" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Verificar Código</button>

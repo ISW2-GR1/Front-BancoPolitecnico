@@ -71,4 +71,40 @@ export class BankAccountService {
             headers,
         });
     }
+
+    //Eliminar una cuenta bancaria del usuario autenticado request-deactivation/ parametre account_number
+    deleteBankAccount(accountNumber: string): Observable<any> {
+        const token = this._authService.accessToken;
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        return this.http.post<any>(
+            `${this.baseUrl}request-deactivation/`,
+            { account_number: accountNumber },
+            { headers }
+        );
+    }
+
+    //Verificar codigo de verificacion para eliminar cuenta bancaria del usuario autenticado /confirm-deactivation/ parametre account_number y verification_code
+    confirmDeactivation(accountNumber: string, verificationCode: string): Observable<any> {
+        const token = this._authService.accessToken;
+        if (!token) {
+            throw new Error('Access token is not available');
+        }
+
+        const headers = new HttpHeaders({
+            Authorization: `Bearer ${token}`,
+        });
+
+        return this.http.post<any>(
+            `${this.baseUrl}confirm-deactivation/`,
+            { account_number: accountNumber, verification_code: verificationCode },
+            { headers }
+        );
+    }
 }

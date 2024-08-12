@@ -48,11 +48,13 @@ import { FuseAlertComponent } from '@fuse/components/alert';
 })
 export class ProfileComponent {
     @ViewChild('addAccountDialog') addAccountDialog: TemplateRef<any>;
-    @ViewChild('confirmDeleteDialog') confirmDeleteDialog: TemplateRef<any>;
     @ViewChild('verifyCodeDialog') verifyCodeDialog: TemplateRef<any>;
+    @ViewChild('confirmDeleteDialog') confirmDeleteDialog: TemplateRef<any>;
+    @ViewChild('verifyDeleteCodeDialog') verifyDeleteCodeDialog: TemplateRef<any>;
 
     cedulaNumber = '';
-    verificationCode = '';
+    verificationCode = '';  // Para añadir cuentas
+    verificationCodeAccount = '';// Para eliminar cuentas
     verificationSent = false;
     accountToDelete: string;
     showAlert = false;
@@ -80,6 +82,7 @@ export class ProfileComponent {
             this.cedulaNumber = '';
             this.verificationCode = '';
             this.verificationSent = false;
+            this.verificationCodeAccount = '';
         });
     }
 
@@ -159,7 +162,7 @@ export class ProfileComponent {
                     this.cedulaNumber = '';
                     this.verificationCode = '';
                     this.verificationSent = false;
-                    this.loadBankAccounts(); // Actualizar la lista de cuentas
+                    this.loadBankAccounts();
                 } else {
                     this.showAlertMessage(
                         'Error al crear la cuenta. Verifique el código de verificación.',
@@ -186,14 +189,69 @@ export class ProfileComponent {
     }
 
     confirmDelete(): void {
-        // Implement your delete logic here
-        this.showAlertMessage(
-            `Cuenta ${this.accountToDelete} eliminada exitosamente.`,
-            'success'
+        if (!this.accountToDelete) {
+            this.showAlertMessage('Número de cuenta no disponible.', 'error');
+            return;
+        }
+    
+        this._bankAccountService.deleteBankAccount(this.accountToDelete).subscribe(
+            (response) => {
+                console.log('Response:', response);  // Verifica la respuesta del backend
+                if (response && response.message === 'Verification code sent') {
+                    this.dialog.open(this.verifyDeleteCodeDialog, {
+                        width: '400px',
+                        panelClass: 'custom-dialog',
+                    });
+                    this.showAlertMessage('Código de verificación enviado a su correo electrónico.', 'success');
+                } else {
+                    this.showAlertMessage('Error al solicitar la eliminación. Intente nuevamente.', 'error');
+                }
+            },
+            (error) => {
+                console.error('Error al solicitar la eliminación:', error);
+                if (error.status === 400) {
+                    // Manejar errores específicos del backend
+                    if (error.error.error === 'Cannot deactivate the primary account') {
+                        this.showAlertMessage('No se puede desactivar la cuenta principal.', 'error');
+                    } else {
+                        this.showAlertMessage('Error al solicitar la eliminación. Intente nuevamente.', 'error');
+                    }
+                } else {
+                    this.showAlertMessage('Error al solicitar la eliminación. Intente nuevamente.', 'error');
+                }
+            }
         );
-        this.dialog.closeAll();
     }
-
+    
+    
+    verifyDeleteCode(): void {
+        console.log('Verificar código de eliminación', this.verificationCodeAccount);
+        if (!this.verificationCodeAccount.trim()) {
+            this.showAlertMessage('El código de verificación es requerido.', 'error');
+            return;
+        }
+    
+        this._bankAccountService.confirmDeactivation(this.accountToDelete, this.verificationCodeAccount).subscribe(
+            (response) => {
+                console.log('Response from confirmDeactivation:', response);
+                // Asegúrate de que el detalle de la respuesta se maneje correctamente
+                if (response && response.detail === 'Your account has been deactivated.') {
+                    this.showSuccessMessage('Cuenta desactivada exitosamente.');
+                    this.dialog.closeAll();
+                    this.loadBankAccounts();
+                } else {
+                    this.showAlertMessage('Error al desactivar la cuenta. Verifique el código de verificación.', 'error');
+                }
+            },
+            (error) => {
+                console.error('Error al verificar el código:', error);
+                this.showAlertMessage('Error al verificar el código. Intente nuevamente.', 'error');
+            }
+        );
+    }
+    
+    
+    
     learnMore(): void {
         console.log('Mostrar más información');
     }
@@ -208,17 +266,17 @@ export class ProfileComponent {
     loadBankAccounts(): void {
         this._bankAccountService.getBankAccounts().subscribe(
             (response) => {
-                this.bankAccounts = response;
-                this.cdr.detectChanges();  // Forzar la detección de cambios
-                console.log('Cuentas bancarias:', this.bankAccounts);
+                this.bankAccounts = response.filter(account => account.is_active);
+                this.cdr.detectChanges();
             },
             (error) => {
-                console.error('Error al obtener las cuentas bancarias:', error);
+                console.error('Error al cargar las cuentas bancarias:', error);
                 this.showAlertMessage(
                     'Error al cargar las cuentas bancarias. Intente nuevamente.',
                     'error'
                 );
             }
         );
-    }    
+    }
+    
 }
