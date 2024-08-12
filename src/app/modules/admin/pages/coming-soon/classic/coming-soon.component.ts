@@ -15,6 +15,7 @@ import { User } from 'app/core/user/user.types';
 import { MatIconModule } from '@angular/material/icon';
 import { Subscription } from 'rxjs';
 import { Router } from '@angular/router';
+import { BankAccountService } from 'app/services/bank-account.service';
 
 // import { AddContactDialogComponent } from './add-contact-dialog/add-contact-dialog.component'; // Ajusta la ruta según tu estructura
 
@@ -77,7 +78,7 @@ export class ComingSoonClassicComponent implements OnInit {
 
     showAlert = false;
     alert: { type: string, message: string } = { type: '', message: '' };
-
+    bankAccounts: any[] = [];
 
 
     /**
@@ -90,22 +91,22 @@ export class ComingSoonClassicComponent implements OnInit {
         public dialog: MatDialog,
         private _userService: UserService,
         private cdr: ChangeDetectorRef,
-        private router: Router
+        private router: Router,
+        private _bankAccountService: BankAccountService
     ) { }
 
     /**
      * On init
      */
     ngOnInit(): void {
+        
         this._userSubscription = this._userService.get().subscribe((user: User) => {
             console.log("DataUser", user);
             this.user = user;
-            this.userAccountNumbers = user.account_numbers;
             this.contactList = user.contacts;
             console.log('Updated Contact List:', this.contactList);
             this.cdr.detectChanges();
         });
-
         this.transferForm = this.fb.group({
             senderAccount: [null, Validators.required],
             receiverAccount: [null, Validators.required],
@@ -117,23 +118,41 @@ export class ComingSoonClassicComponent implements OnInit {
             account_number: ['', Validators.required],
             cedula: ['', Validators.required]
         });
-    }
 
+        this.loadBankAccounts();
+        
+    }
+    loadBankAccounts(): void {
+        this._bankAccountService.getBankAccounts().subscribe(
+            (response) => {
+                this.bankAccounts = response.filter(account => account.is_active);
+                this.cdr.detectChanges();
+            },
+            (error) => {
+                console.error('Error al cargar las cuentas bancarias:', error);
+            }
+        );
+    }
+    
+    
     submitTransfer(): void {
         if (this.transferForm.valid) {
             const { senderAccount, receiverAccount, amount } = this.transferForm.value;
-
+            console.log('Cuenta de Origen seleccionada:', senderAccount); // Añadir esto para depuración
+    
             this.transferService.createTransfer({ sender_account: senderAccount, receiver_account: receiverAccount, amount }).subscribe(
                 response => {
                     this.openOtpModal();
                 },
                 error => {
-                    this.alert = { type: 'error', message: 'Error al realizar la transferencia inicial' };
+                    console.error('Error en la transferencia inicial:', error);
+                    this.alert = { type: 'error', message: error.error?.non_field_errors?.join(', ') || 'Error al realizar la transferencia inicial' };
                     this.showAlert = true;
                 }
             );
         }
     }
+    
 
     openOtpModal(): void {
         this.dialogRef = this.dialog.open(this.otpModal);
@@ -163,10 +182,12 @@ export class ComingSoonClassicComponent implements OnInit {
                     });
                 },
                 error => {
+                    console.error('Error al confirmar la transferencia:', error);
+                    // Mostrar todos los errores del backend
                     this.dialogRef.close();
                     this.otpCode = '';
                     this.transferForm.reset();
-                    this.alert = { type: 'error', message: 'Error al confirmar la transferencia' };
+                    this.alert = { type: 'error', message: error.error?.non_field_errors?.join(', ') || 'Error al confirmar la transferencia' };
                     this.showAlert = true;
                     this.cdr.detectChanges();
                 }

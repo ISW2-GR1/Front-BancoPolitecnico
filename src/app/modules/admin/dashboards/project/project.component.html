@@ -8,11 +8,11 @@
                     <h2 class="text-4xl sm:text-6xl font-bold mb-4 leading-tight">¡Bienvenido a Banco Politécnico!</h2>
                     <p class="text-lg sm:text-2xl leading-relaxed mb-5">Gestiona tus finanzas con confianza y aprovecha nuestros servicios de banca en línea. Tu tranquilidad financiera comienza aquí.</p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <div class="w-32 h-32 sm:w-48 sm:h-48 rounded-full overflow-hidden border-4 border-white shadow-xl">
+                <div class="flex flex-col items-center sm:items-start">
+                    <div class="w-32 h-32 sm:w-48 sm:h-48 rounded-full overflow-hidden border-4 border-white shadow-xl mb-4">
                         <img class="w-full h-full object-cover" [src]="user.avatar || defaultAvatar" alt="Avatar">
                     </div>
-                    <div class="mt-4 text-center">
+                    <div class="text-center sm:text-left">
                         <div class="text-3xl sm:text-5xl font-semibold">{{ user.name }} {{ user.last_name }}</div>
                         <div class="text-lg sm:text-xl text-gray-200">{{ user.email }}</div>
                         <div class="text-sm sm:text-base text-gray-300 mt-2">Fecha de Ingreso: {{ user.joinDate | date:'dd/MM/yyyy HH:mm:ss' }}</div>

@@ -21,6 +21,7 @@
                 {{ alert.message }}
             </fuse-alert>
 
+
             <!-- Add New Contact -->
             <div class="flex items-center justify-between mb-8">
                 <button (click)="openAddContactDialog()"
@@ -37,21 +38,21 @@
                 <mat-form-field class="w-full mb-6">
                     <mat-label class="text-lg font-medium text-gray-800">Cuenta de Origen</mat-label>
                     <mat-select formControlName="senderAccount" placeholder="Seleccionar cuenta">
-                        <mat-option *ngFor="let account of userAccountNumbers" [value]="account">
-                            {{ account }}
+                        <mat-option *ngFor="let account of bankAccounts" [value]="account.account_number">
+                            {{ account.account_number }}
                         </mat-option>
                     </mat-select>
                     <mat-error *ngIf="transferForm.get('senderAccount').hasError('required')">
                         La cuenta de origen es obligatoria
                     </mat-error>
-                </mat-form-field>
+                </mat-form-field>                
 
                 <!-- Receiver Account -->
                 <mat-form-field class="w-full mb-6" *ngIf="contactList.length > 0">
                     <mat-label class="text-lg font-medium text-gray-800">Cuenta de Destino</mat-label>
                     <mat-select formControlName="receiverAccount" placeholder="Seleccionar cuenta">
                         <mat-option *ngFor="let contact of contactList" [value]="contact.contact_account_number">
-                            {{ contact.contact_name }}  - {{ contact.contact_account_number }}
+                            {{ contact.contact_name }} - {{ contact.contact_account_number }}
                         </mat-option>
                     </mat-select>
                     <mat-error *ngIf="transferForm.get('receiverAccount').hasError('required')">
@@ -126,10 +127,13 @@
                 </mat-form-field>
 
                 <mat-dialog-actions class="flex space-x-2">
-                    <button mat-raised-button type="submit" color="primary" class="flex-1 py-2 px-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800 transition duration-300" [disabled]="contactForm.invalid">
+                    <button mat-raised-button type="submit" color="primary"
+                        class="flex-1 py-2 px-4 bg-blue-700 text-white rounded-lg shadow-md hover:bg-blue-800 transition duration-300"
+                        [disabled]="contactForm.invalid">
                         Buscar
                     </button>
-                    <button mat-button (click)="cancelSearch()" class="flex-1 py-2 px-4  text-red-600  transition duration-300">
+                    <button mat-button (click)="cancelSearch()"
+                        class="flex-1 py-2 px-4  text-red-600  transition duration-300">
                         Cancelar
                     </button>
                 </mat-dialog-actions>
