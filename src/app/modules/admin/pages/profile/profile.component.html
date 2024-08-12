@@ -59,6 +59,9 @@
             <mat-error *ngIf="cedulaNumber.length > 0 && cedulaNumber.length < 10">
                 El número de cédula debe tener al menos 10 dígitos.
             </mat-error>
+            <mat-error *ngIf="cedulaNumber.length === 0">
+                Este campo es obligatorio.
+            </mat-error>
         </mat-form-field>
     </div>
     <mat-dialog-actions class="flex justify-end space-x-2">

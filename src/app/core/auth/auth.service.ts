@@ -1,14 +1,17 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { inject, Injectable, Injector } from '@angular/core';
-import { catchError, map, Observable, of, switchMap, throwError, interval } from 'rxjs';
+import { catchError, interval, Observable, of, switchMap, throwError } from 'rxjs';
 import { environment } from 'environments/environment';
 import { UserService } from 'app/core/user/user.service';
+import { Router } from '@angular/router';
+import { HttpHeaders } from '@angular/common/http'; // Ensure HttpHeaders is imported
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private _authenticated: boolean = false;
     private _httpClient = inject(HttpClient);
     private _injector = inject(Injector);
+    private _router = inject(Router);
 
     private baseUrl = environment.apiUrl;
 
@@ -24,7 +27,6 @@ export class AuthService {
     }
 
     // Accessors for tokens
-
     set accessToken(token: string) {
         localStorage.setItem('accessToken', token);
     }
@@ -42,7 +44,6 @@ export class AuthService {
     }
 
     // Public methods
-
     forgotPassword(email: string): Observable<any> {
         return this._httpClient.post(`${this.baseUrl}password-reset/`, { email });
     }
@@ -79,9 +80,8 @@ export class AuthService {
     }
 
     signOut(): Observable<any> {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('refreshToken');
-        this._authenticated = false;
+        this.logout();
+        this._router.navigate(['/sign-in']);
         return of(true);
     }
 
@@ -114,8 +114,30 @@ export class AuthService {
         return this._httpClient.post(`${this.baseUrl}email-confirm/`, { token });
     }
 
-    // Private methods
+    // New method for token refresh
+    refreshAccessToken(): Observable<any> {
+        const refreshToken = this.refreshToken;
+        if (!refreshToken) {
+            return throwError('No refresh token available');
+        }
 
+        return this._httpClient.post<any>(`${this.baseUrl}token/refresh/`, { refresh: refreshToken }).pipe(
+            switchMap(response => {
+                if (response && response.access) {
+                    this.accessToken = response.access;
+                    return of(response);
+                } else {
+                    return throwError('Failed to refresh access token');
+                }
+            }),
+            catchError((error) => {
+                this.signOut(); // Log out on failure
+                return throwError(error);
+            })
+        );
+    }
+
+    // Private methods
     private checkTokenValidity(): Observable<boolean> {
         const refreshToken = this.refreshToken;
         if (!refreshToken) {
@@ -139,4 +161,33 @@ export class AuthService {
             })
         );
     }
+
+    logout(): Observable<any> {
+        const accessToken = this.accessToken; // Access token should be used in the Authorization header
+        const refreshToken = this.refreshToken; // Refresh token should be sent in the request body
+    
+        if (!accessToken || !refreshToken) {
+            return throwError('No access or refresh token available');
+        }
+    
+        const headers = new HttpHeaders({
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}` // Include access token in Authorization header
+        });
+    
+        return this._httpClient.post<any>(`${this.baseUrl}logout/`, { refresh: refreshToken }, { headers }).pipe(
+            switchMap(() => {
+                // Clear the tokens from local storage
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                this._authenticated = false;
+                this._router.navigate(['/sign-in']); // Redirect to login page or any other appropriate page
+                return of(true);
+            }),
+            catchError((error) => {
+                console.error('Error during logout:', error);
+                return throwError('Failed to log out. Please try again.');
+            })
+        );
+    }  
 }

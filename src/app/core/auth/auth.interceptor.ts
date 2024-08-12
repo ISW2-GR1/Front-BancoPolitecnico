@@ -8,7 +8,7 @@ export class AuthInterceptor implements HttpInterceptor {
     constructor(private authService: AuthService) { }
 
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        // Clone the request to add the new header
+        // Clone the request to add the Authorization header
         const authReq = req.clone({
             headers: req.headers.set('Authorization', `Bearer ${this.authService.accessToken}`)
         });
@@ -28,7 +28,9 @@ export class AuthInterceptor implements HttpInterceptor {
                         }),
                         catchError(refreshError => {
                             // If token refresh fails, log out the user
-                            this.authService.signOut();
+                            this.authService.signOut().subscribe(() => {
+                                // Optional: You might want to redirect to login here as well
+                            });
                             return throwError(refreshError);
                         })
                     );

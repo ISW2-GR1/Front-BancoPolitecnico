@@ -67,71 +67,77 @@
         </div>
     </div>
 
-<!-- Dialogo de Editar Perfil -->
-<ng-template #editProfileDialog>
-    <div class="p-6">
-        <h2 class="text-2xl font-bold mb-4">Editar Perfil</h2>
+    <!-- Dialogo de Editar Perfil -->
+    <ng-template #editProfileDialog>
+            <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Editar Username</h2>
+            <fuse-alert class="mb-4" *ngIf="showAlert && alert.type === 'error'" [appearance]="'outline'"
+                [showIcon]="false" [type]="alert.type">
+                {{alert.message}}
+            </fuse-alert>
+            <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su nuevo nombre de Usuario.</p>
+            <form [formGroup]="editProfileForm" (ngSubmit)="onSaveProfile()">
+                <mat-form-field appearance="fill" class="w-full">
+                    <mat-label>Nombre de Usuario</mat-label>
+                    <input matInput formControlName="username" placeholder="Ingrese su nombre de usuario" required>
+                    <mat-error *ngIf="editProfileForm.get('username').hasError('required')">
+                        Este campo es obligatorio.
+                    </mat-error>
+                </mat-form-field>
+                <mat-dialog-actions class="flex justify-end space-x-2">
+                    <button mat-button mat-dialog-close
+                        class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Cancelar</button>
+                    <button mat-raised-button color="primary" type="submit"
+                        class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">Guardar</button>
+                </mat-dialog-actions>
+            </form>
+    </ng-template>
 
+<!-- Dialogo de Modificar la contraseña -->
+<ng-template #changePasswordDialog>
+    <div class="p-6">
+        <h2 mat-dialog-title class="text-lg sm:text-xl font-bold text-gray-900 mb-4">Editar la contraseña</h2>
         <fuse-alert class="mb-4" *ngIf="showAlert && alert.type === 'error'" [appearance]="'outline'"
             [showIcon]="false" [type]="alert.type">
             {{alert.message}}
         </fuse-alert>
-        <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su nuevo nombre de Usuario.</p>
-
-        <form [formGroup]="editProfileForm" (ngSubmit)="onSaveProfile()">
-            <div class="mb-4">
-                <label class="block text-gray-700">Nombre de Usuario</label>
-                <input formControlName="username" class="w-full px-4 py-2 border rounded" type="text">
-            </div>
-            <div class="flex justify-end">
-                <button type="button" class="px-4 py-2 mr-2 bg-gray-400 text-white rounded"
-                    (click)="closeEditProfileDialog()">Cancelar</button>
-                    <button mat-button type="button" (click)="onSaveProfile()">Guardar</button>
-            </div>
+        <p class="text-sm text-gray-600 mb-4">
+            Por favor, ingrese su nueva contraseña. Asegúrese de que la contraseña tenga al menos 8 caracteres y
+            contenga al menos una letra mayúscula, una letra minúscula, un número y un carácter especial.
+        </p>
+        <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()">
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Contraseña Actual</mat-label>
+                <input matInput formControlName="currentPassword" placeholder="Ingrese su contraseña actual" required type="password">
+                <mat-error *ngIf="changePasswordForm.get('currentPassword').hasError('required')">
+                    Este campo es obligatorio.
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Nueva Contraseña</mat-label>
+                <input matInput formControlName="newPassword" placeholder="Ingrese su nueva contraseña" required type="password">
+                <mat-error *ngIf="changePasswordForm.get('newPassword').hasError('required')">
+                    Este campo es obligatorio.
+                </mat-error>
+            </mat-form-field>
+            <mat-form-field appearance="fill" class="w-full">
+                <mat-label>Confirmar Contraseña</mat-label>
+                <input matInput formControlName="confirmPassword" placeholder="Confirme su nueva contraseña" required type="password">
+                <mat-error *ngIf="changePasswordForm.get('confirmPassword').hasError('required')">
+                    Este campo es obligatorio.
+                </mat-error>
+                <mat-error *ngIf="changePasswordForm.hasError('passwordMismatch') && changePasswordForm.get('confirmPassword').touched">
+                    Las contraseñas no coinciden.
+                </mat-error>
+            </mat-form-field>
+            <mat-dialog-actions class="flex justify-end space-x-2">
+                <button mat-button mat-dialog-close class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">
+                    Cancelar
+                </button>
+                <button mat-raised-button color="primary" type="submit" class="rounded-md shadow-md transition-transform transform hover:scale-105 hover:shadow-md">
+                    Guardar
+                </button>
+            </mat-dialog-actions>
         </form>
     </div>
 </ng-template>
-
-    <!-- Dialogo de Configuración (Cambiar Contraseña) -->
-    <ng-template #changePasswordDialog>
-        <div class="p-6">
-            <h2 class="text-2xl font-bold mb-4">Cambiar Contraseña</h2>
-            <fuse-alert class="mb-4" *ngIf="showAlert && alert.type === 'error'" [appearance]="'outline'"
-            [showIcon]="false" [type]="alert.type">
-            {{alert.message}}
-        </fuse-alert>
-        <p class="text-sm text-gray-600 mb-4">Por favor, ingrese su nueva Contraseña.</p>
-            <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()">
-                <div class="mb-4">
-                    <label class="block text-gray-700">Contraseña Actual</label>
-                    <input formControlName="currentPassword" class="w-full px-4 py-2 border rounded" type="password">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700">Nueva Contraseña</label>
-                    <input formControlName="newPassword" class="w-full px-4 py-2 border rounded" type="password">
-                </div>
-
-                <mat-error *ngIf="signUpForm.get('password').hasError('backend')">
-                    {{ backendErrors['password'] ? backendErrors['password'][0] : 'Contraseña no válida.' }}
-                </mat-error>
-                <mat-error *ngIf="signUpForm.get('password').hasError('required')">
-                    La contraseña es obligatoria
-                </mat-error>
-                <mat-error *ngIf="signUpForm.get('password').hasError('minlength')">
-                    La contraseña debe tener al menos 8 dígitos
-                </mat-error>
-                <mat-error *ngIf="signUpForm.get('password').hasError('pattern')">
-                    La contraseña debe tener caracteres especiales
-                </mat-error>
-                
-                <div class="flex justify-end">
-                    <button type="button" class="px-4 py-2 mr-2 bg-gray-400 text-white rounded"
-                        (click)="closeDialog()">Cancelar</button>
-                    <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded"
-                        [disabled]="changePasswordForm.invalid">Cambiar</button>
-                </div>
-
-            </form>
-        </div>
-    </ng-template>
 </div>

@@ -69,6 +69,8 @@ export class ProjectComponent implements OnInit, OnDestroy {
     private _bankAccountSubscription: Subscription;
     bankAccounts: any[] = [];
     selectedAccount: any;
+    totalBalance: number = 0;
+    showTotalBalance: boolean = false;
 
     constructor(
         private _userService: UserService,
@@ -93,14 +95,28 @@ export class ProjectComponent implements OnInit, OnDestroy {
             this._userSubscription.unsubscribe();
         }
     }
-    
+
+    toggleTotalBalanceVisibility(): void {
+        this.showTotalBalance = !this.showTotalBalance;
+    }
+
     loadBankAccounts(): void {
         this._bankAccountSubscription = this._bankAccountService.getBankAccounts().subscribe(
             (response) => {
                 this.bankAccounts = response.map(account => ({
                     ...account,
-                    showBalance: false // Inicializar showBalance en false
+                    showBalance: false,
+                    balance: Number(account.balance) // Asegurarse de que balance es un número
                 }));
+                
+                // Verificar que el balance se ha convertido correctamente
+                console.log('Bank Accounts:', this.bankAccounts);
+    
+                this.totalBalance = this.bankAccounts.reduce((sum, account) => sum + account.balance, 0);
+    
+                // Verificar el cálculo de la suma total
+                console.log('Total Balance:', this.totalBalance);
+    
                 this.cdr.markForCheck();
             },
             (error) => {
@@ -109,7 +125,6 @@ export class ProjectComponent implements OnInit, OnDestroy {
         );
     }
     
-
     toggleBalanceVisibility(account: any): void {
         account.showBalance = !account.showBalance;
     }

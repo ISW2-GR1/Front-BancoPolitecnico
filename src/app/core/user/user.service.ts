@@ -53,25 +53,25 @@ export class UserService {
             'Authorization': `Bearer ${token}`
         });
 
-        return this._httpClient.patch<any>(`${this.baseUrl}profile/`, { username }, { headers }).pipe(
+        return this._httpClient.put<any>(`${this.baseUrl}update-username/`, { username }, { headers }).pipe(
             tap((user) => {
                 this._user.next(user);
             })
         );
     }
 
-    //Api para actualizar la contraseña del usuario autenticado update-password/
+    // Api para actualizar la contraseña del usuario autenticado
     updatePassword(old_password: string, new_password: string): Observable<any> {
         const token = this._authService.accessToken;
-
+    
         if (!token) {
             throw new Error('Access token is not available');
         }
-
+    
         const headers = new HttpHeaders({
             'Authorization': `Bearer ${token}`
         });
-
-        return this._httpClient.patch<any>(`${this.baseUrl}profile/update-password/`, { old_password, new_password }, { headers });
-    }
+    
+        return this._httpClient.post<any>(`${this.baseUrl}update-password/`, { old_password, new_password }, { headers });
+    }    
 }

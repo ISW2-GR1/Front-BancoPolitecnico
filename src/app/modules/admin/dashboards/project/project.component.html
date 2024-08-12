@@ -33,13 +33,23 @@
                             <div class="flex flex-col w-full p-8 bg-white shadow-2xl rounded-3xl overflow-hidden border border-teal-300">
                                 <div class="text-2xl sm:text-3xl font-semibold tracking-tight leading-6 text-teal-900 mb-8">Tus Números de Cuenta</div>
                                 <div class="flex flex-col space-y-6">
+                                    <div class="flex items-center mb-2">
+                                        <div class="text-lg sm:text-xl font-semibold text-teal-800 mr-2">
+                                            Suma Total del Saldo:
+                                            <span *ngIf="!showTotalBalance">********</span>
+                                            <span *ngIf="showTotalBalance">{{ totalBalance | currency }}</span>
+                                        </div>
+                                        <button mat-icon-button color="primary" class="text-teal-600 hover:text-teal-800 transition duration-300" (click)="toggleTotalBalanceVisibility()">
+                                            <mat-icon>{{ showTotalBalance ? 'visibility_off' : 'visibility' }}</mat-icon>
+                                        </button>
+                                    </div>
                                     <!-- Card for each account number -->
                                     <div *ngFor="let account of bankAccounts" class="flex flex-col p-6 bg-teal-50 shadow-lg rounded-lg border border-teal-200 transition-transform transform hover:scale-105 hover:shadow-xl relative">
                                         <div class="flex justify-between items-center">
                                             <div class="flex-grow">
                                                 <div class="text-lg sm:text-xl font-semibold text-teal-800 mb-2">{{ account.account_number }}</div>
                                                 <div class="text-base text-gray-600 mb-2">
-                                                    <span *ngIf="!account.showBalance">{{ '********' }}</span>
+                                                    <span *ngIf="!account.showBalance">********</span>
                                                     <span *ngIf="account.showBalance">{{ account.balance | currency }}</span>
                                                 </div>
                                             </div>

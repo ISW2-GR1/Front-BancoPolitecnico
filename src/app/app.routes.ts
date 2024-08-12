@@ -161,10 +161,6 @@ export const appRoutes: Route[] = [
                 // Typography
                 {path: 'typography', loadChildren: () => import('app/modules/admin/ui/typography/typography.routes')}
             ]},
-
-            // 404 & Catch all
-            {path: '404-not-found', pathMatch: 'full', loadChildren: () => import('app/modules/admin/pages/error/error-404/error-404.routes')},
-            {path: '**', redirectTo: '404-not-found'}
         ]
     }
 ];
